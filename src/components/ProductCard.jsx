@@ -1,10 +1,10 @@
 import React from 'react';
-import { ShoppingBag, Eye, Star, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { ShoppingBag, Eye, Star, AlertCircle, CheckCircle2, XCircle, Check, Trash2, Plus, Minus } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { formatCurrency } from '../utils/format';
 
 export default function ProductCard({ product }) {
-  const { addToCart, setSelectedProductForModal, cart } = useShop();
+  const { addToCart, updateCartQuantity, removeFromCart, setSelectedProductForModal, cart } = useShop();
 
   const isOutOfStock = product.stock <= 0;
   const isLowStock = product.stock > 0 && product.stock <= product.lowStockThreshold;
@@ -19,12 +19,27 @@ export default function ProductCard({ product }) {
     : 0;
 
   return (
-    <div className="group bg-white rounded-2xl border border-slate-200/90 hover:border-orange-400 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative text-right" dir="rtl">
-      {/* شارة الخصم */}
+    <div
+      className={`group bg-white rounded-2xl transition-all duration-300 flex flex-col overflow-hidden relative text-right ${
+        inCartQty > 0
+          ? 'border-2 border-orange-500 shadow-md shadow-orange-500/10 ring-2 ring-orange-400/20'
+          : 'border border-slate-200/90 hover:border-orange-400 shadow-sm hover:shadow-xl'
+      }`}
+      dir="rtl"
+    >
+      {/* شارة الخصم وشارة تم الاختيار في السلة */}
       <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-start">
         {discountPercent > 0 && (
           <span className="bg-rose-500 text-white text-[9px] sm:text-[11px] font-extrabold px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg shadow-sm">
             خصم {discountPercent}%
+          </span>
+        )}
+
+        {/* بادج بارز ومميز يؤكد اختيار العميل للمنتج */}
+        {inCartQty > 0 && (
+          <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[9px] sm:text-[11px] font-black px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md sm:rounded-lg shadow-md flex items-center gap-1 animate-in fade-in">
+            <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+            <span>في سلتك ({inCartQty})</span>
           </span>
         )}
       </div>
@@ -75,7 +90,7 @@ export default function ProductCard({ product }) {
             className="px-4 py-2 bg-white/95 hover:bg-white text-slate-900 text-xs font-bold rounded-xl shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition cursor-pointer"
           >
             <Eye className="w-4 h-4 text-orange-600" />
-            <span>معاينة سريعة</span>
+            <span>تفاصيل المنتج</span>
           </button>
         </div>
       </div>
@@ -108,7 +123,7 @@ export default function ProductCard({ product }) {
           <span className="text-slate-400 hidden sm:inline">({product.reviewsCount} تقييم)</span>
         </div>
 
-        {/* السعر وزر الشراء */}
+        {/* السعر وزر الشراء / التحكم الفوري بالسلة والحذف */}
         <div className="mt-auto pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
           {/* الأسعار */}
           <div>
@@ -122,30 +137,83 @@ export default function ProductCard({ product }) {
                 </span>
               )}
             </div>
-            {inCartQty > 0 && (
-              <span className="text-[9px] sm:text-[10px] text-orange-600 font-bold block">
-                في السلة: {inCartQty}
-              </span>
-            )}
           </div>
 
-          {/* زر الإضافة للسلة */}
-          <button
-            onClick={() => addToCart(product, 1)}
-            disabled={isOutOfStock || isMaxInCart}
-            className={`w-full sm:w-auto px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition shadow-sm ${
-              isOutOfStock
-                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
-                : isMaxInCart
-                ? 'bg-amber-100 text-amber-800 border border-amber-200 cursor-not-allowed'
-                : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-500/25 active:scale-95 cursor-pointer'
-            }`}
-          >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>
-              {isOutOfStock ? 'نفد' : isMaxInCart ? 'بالسلة' : 'أضف'}
-            </span>
-          </button>
+          {/* وحدة التحكم التفاعلية: إضافة / تعديل / حذف مباشر من البطاقة */}
+          {inCartQty > 0 ? (
+            <div className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-1 bg-orange-50/90 border border-orange-200/90 p-1 rounded-xl shadow-xs">
+              {/* زر الإنقاص أو الحذف */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (inCartQty <= 1) {
+                    removeFromCart(product.id);
+                  } else {
+                    updateCartQuantity(product.id, inCartQty - 1);
+                  }
+                }}
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition active:scale-90 cursor-pointer ${
+                  inCartQty <= 1
+                    ? 'bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200'
+                    : 'bg-white hover:bg-slate-100 text-slate-800 shadow-xs'
+                }`}
+                title={inCartQty <= 1 ? "حذف هذا المنتج من السلة" : "إنقاص قطعة واحدة"}
+              >
+                {inCartQty <= 1 ? <Trash2 className="w-3.5 h-3.5" /> : <Minus className="w-3.5 h-3.5" />}
+              </button>
+
+              {/* العداد الرقمي */}
+              <div className="flex flex-col items-center leading-none px-1.5 min-w-[28px]">
+                <span className="text-xs sm:text-sm font-black text-orange-600">
+                  {inCartQty}
+                </span>
+              </div>
+
+              {/* زر الزيادة */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isMaxInCart) {
+                    updateCartQuantity(product.id, inCartQty + 1);
+                  }
+                }}
+                disabled={isMaxInCart}
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white hover:bg-slate-100 disabled:opacity-40 text-slate-800 shadow-xs flex items-center justify-center transition active:scale-90 cursor-pointer"
+                title={isMaxInCart ? "وصلت لأقصى كمية متوفرة" : "زيادة قطعة واحدة"}
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+
+              {/* زر حذف كامل فوري بزر سلة المهملات */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFromCart(product.id);
+                }}
+                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer active:scale-90 mr-0.5"
+                title="حذف هذا المنتج بالكامل من السلة"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            /* زر الإضافة العادي */
+            <button
+              onClick={() => addToCart(product, 1)}
+              disabled={isOutOfStock}
+              className={`w-full sm:w-auto px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm ${
+                isOutOfStock
+                  ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-500/25 active:scale-95 cursor-pointer'
+              }`}
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>{isOutOfStock ? 'نفد' : 'أضف للسلة'}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

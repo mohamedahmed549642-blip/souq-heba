@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { X, ShoppingBag, ShieldCheck, Truck, RefreshCw, Star, AlertTriangle, CheckCircle } from 'lucide-react';
+import { X, ShoppingBag, ShieldCheck, Truck, RefreshCw, Star, AlertTriangle, CheckCircle, Trash2, Plus, Minus, Check } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { formatCurrency } from '../utils/format';
 
 export default function ProductModal() {
-  const { selectedProductForModal, setSelectedProductForModal, addToCart, cart } = useShop();
+  const {
+    selectedProductForModal,
+    setSelectedProductForModal,
+    addToCart,
+    updateCartQuantity,
+    removeFromCart,
+    cart
+  } = useShop();
+
   const [quantity, setQuantity] = useState(1);
 
   if (!selectedProductForModal) return null;
@@ -16,6 +24,7 @@ export default function ProductModal() {
   const currentCartItem = cart.find(i => i.id === product.id);
   const inCartQty = currentCartItem ? currentCartItem.quantity : 0;
   const remainingCanAdd = Math.max(0, product.stock - inCartQty);
+  const isMaxInCart = inCartQty >= product.stock;
 
   const currentPrice = product.salePrice !== null ? product.salePrice : product.price;
 
@@ -36,10 +45,7 @@ export default function ProductModal() {
       alert(`لا يمكن إضافة ${quantity} قطع. المتوفر الإضافي لك في السلة هو ${remainingCanAdd} قطع فقط.`);
       return;
     }
-    const success = addToCart(product, quantity);
-    if (success) {
-      setSelectedProductForModal(null);
-    }
+    addToCart(product, quantity);
   };
 
   return (
@@ -58,7 +64,7 @@ export default function ProductModal() {
           <img
             src={product.image}
             alt={product.name}
-            className={`w-full max-h-[200px] sm:max-h-[350px] object-cover rounded-2xl shadow-md ${
+            className={`w-full max-h-[220px] sm:max-h-[350px] object-cover rounded-2xl shadow-md ${
               isOutOfStock ? 'grayscale' : ''
             }`}
           />
@@ -67,13 +73,20 @@ export default function ProductModal() {
               عرض خاص
             </span>
           )}
+
+          {inCartQty > 0 && (
+            <span className="absolute bottom-4 right-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-lg shadow-md flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5" />
+              <span>مضاف في سلتك ({inCartQty})</span>
+            </span>
+          )}
         </div>
 
         {/* تفاصيل المنتج */}
         <div className="md:w-1/2 p-4 sm:p-8 flex flex-col overflow-y-auto text-right">
           {/* القسم وكود SKU */}
           <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
-            <span className="bg-emerald-50 text-emerald-800 font-bold px-2.5 py-1 rounded-lg">
+            <span className="bg-orange-50 text-orange-900 border border-orange-200/80 font-bold px-2.5 py-1 rounded-lg">
               {product.category}
             </span>
             <span className="font-mono text-slate-400">كود المنتج: {product.sku}</span>
@@ -100,22 +113,23 @@ export default function ProductModal() {
             <span className="text-xs text-slate-400">({product.reviewsCount} تقييم حقيقي من العملاء)</span>
           </div>
 
-          {/* السعر */}
-          <div className="flex items-baseline gap-3 mb-4">
-            <span className="text-2xl sm:text-3xl font-black text-slate-900">
-              {formatCurrency(currentPrice)}
-            </span>
-            {product.salePrice && (
-              <span className="text-base text-slate-400 line-through">
-                {formatCurrency(product.price)}
-              </span>
-            )}
-          </div>
-
-          {/* صندوق تتبع المخزون اللحظي */}
-          <div className="mb-4 p-3.5 rounded-2xl border text-xs flex items-center justify-between">
+          {/* السعر والمخزون */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-slate-50 rounded-2xl mb-4 border border-slate-100">
             <div>
-              <span className="font-bold block text-slate-800 mb-0.5">حالة المخزون المتوفر:</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-black text-slate-900">
+                  {formatCurrency(currentPrice)}
+                </span>
+                {product.salePrice && (
+                  <span className="text-sm text-slate-400 line-through">
+                    {formatCurrency(product.price)}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* شارة التوفر */}
+            <div className="text-xs">
               {isOutOfStock ? (
                 <span className="text-rose-600 font-bold flex items-center gap-1.5">
                   <X className="w-4 h-4" /> نفد من المخزون حالياً
@@ -130,24 +144,83 @@ export default function ProductModal() {
                 </span>
               )}
             </div>
-
-            {inCartQty > 0 && (
-              <span className="bg-slate-100 text-slate-700 font-bold px-2.5 py-1 rounded-lg">
-                في سلتك: {inCartQty}
-              </span>
-            )}
           </div>
+
+          {/* قسم تأكيد الاختيار والحذف المباشر إذا كان المنتج مضافاً في السلة */}
+          {inCartQty > 0 && (
+            <div className="bg-orange-50/90 border border-orange-200/90 rounded-2xl p-3.5 mb-4 shadow-xs animate-in fade-in">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center font-black shrink-0 shadow-sm">
+                    <Check className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xs sm:text-sm text-slate-900">
+                      هذا المنتج موجود في سلتك ({inCartQty} قطع)
+                    </h4>
+                    <p className="text-[11px] text-orange-700 font-semibold">
+                      إجمالي سعره بالسلة: {formatCurrency(currentPrice * inCartQty)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* زر حذف ما تم اختياره مباشرة من صفحة المنتج */}
+                <button
+                  type="button"
+                  onClick={() => removeFromCart(product.id)}
+                  className="px-3 py-1.5 rounded-xl border border-rose-300 bg-white hover:bg-rose-50 text-rose-600 text-xs font-bold flex items-center gap-1.5 transition shadow-xs cursor-pointer active:scale-95 shrink-0"
+                  title="حذف هذا المنتج بالكامل من السلة"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>حذف من السلة</span>
+                </button>
+              </div>
+
+              {/* أزرار تعديل الكمية السريعة لما تم طلبه */}
+              <div className="mt-3 pt-2.5 border-t border-orange-200/60 flex items-center justify-between text-xs">
+                <span className="font-bold text-slate-700">تعديل الكمية في سلتك:</span>
+                <div className="flex items-center gap-2 bg-white px-2 py-1 rounded-xl border border-orange-200 shadow-xs">
+                  <button
+                    onClick={() => {
+                      if (inCartQty <= 1) {
+                        removeFromCart(product.id);
+                      } else {
+                        updateCartQuantity(product.id, inCartQty - 1);
+                      }
+                    }}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-700 hover:bg-slate-100 transition active:scale-90 cursor-pointer"
+                    title={inCartQty <= 1 ? "حذف من السلة" : "إنقاص قطعة"}
+                  >
+                    {inCartQty <= 1 ? <Trash2 className="w-3.5 h-3.5 text-rose-500" /> : <Minus className="w-3.5 h-3.5" />}
+                  </button>
+
+                  <span className="w-7 text-center font-black text-sm text-orange-600">
+                    {inCartQty}
+                  </span>
+
+                  <button
+                    onClick={() => updateCartQuantity(product.id, inCartQty + 1)}
+                    disabled={isMaxInCart}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-700 hover:bg-slate-100 disabled:opacity-40 transition active:scale-90 cursor-pointer"
+                    title={isMaxInCart ? "وصلت لأقصى مخزون" : "زيادة قطعة"}
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* الوصف */}
           <div className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
             <p>{product.description}</p>
           </div>
 
-          {/* أزرار الإجراءات */}
+          {/* أزرار إضافة كميات جديدة */}
           <div className="mt-auto">
             {!isOutOfStock && remainingCanAdd > 0 ? (
               <div className="flex items-center gap-3">
-                {/* عداد الكمية */}
+                {/* عداد الكمية المراد إضافتها */}
                 <div className="flex items-center border border-slate-200 rounded-xl p-1 bg-slate-50">
                   <button
                     onClick={handleDecrement}
@@ -173,7 +246,9 @@ export default function ProductModal() {
                   className="flex-1 py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer text-xs sm:text-sm"
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  <span>إضافة {quantity} للسلة • {formatCurrency(currentPrice * quantity)}</span>
+                  <span>
+                    {inCartQty > 0 ? `إضافة ${quantity} أخرى للسلة` : `إضافة ${quantity} للسلة`} • {formatCurrency(currentPrice * quantity)}
+                  </span>
                 </button>
               </div>
             ) : isOutOfStock ? (
@@ -181,8 +256,8 @@ export default function ProductModal() {
                 هذا المنتج غير متوفر في المخزون حالياً
               </div>
             ) : (
-              <div className="w-full py-3 bg-amber-50 text-amber-800 font-bold rounded-xl text-center text-sm border border-amber-200">
-                لقد أضفت كل الكمية المتوفرة في المخزون ({product.stock} قطع) إلى سلتك
+              <div className="w-full py-2.5 bg-amber-50 text-amber-800 font-bold rounded-xl text-center text-xs sm:text-sm border border-amber-200">
+                لقد حجزت كل الكمية المتوفرة في المخزون ({product.stock} قطع) في سلتك
               </div>
             )}
 
