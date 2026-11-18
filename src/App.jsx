@@ -9,7 +9,8 @@ import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import AdminLoginModal from './components/AdminLoginModal';
 import RealtimeOrderToast from './components/RealtimeOrderToast';
-import MobileBottomNav from './components/MobileBottomNav';
+import FloatingCartBar from './components/FloatingCartBar';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
 
 function ShopContent() {
   const { isAdminRoute } = useShop();
@@ -29,14 +30,15 @@ function ShopContent() {
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900 selection:bg-emerald-500 selection:text-white" dir="rtl">
       <Navbar />
 
-      <main className="flex-1 pb-20 md:pb-0">
+      <main className="flex-1 pb-12">
         <Storefront />
       </main>
 
       <Footer />
 
-      {/* Modern App-Style Mobile Bottom Navigation Bar for Customers */}
-      <MobileBottomNav />
+      {/* Dynamic Floating Smart Cart Bar (appears when items added) & Floating WhatsApp Concierge */}
+      <FloatingCartBar />
+      <FloatingWhatsApp />
 
       {/* Global Customer Modals & Realtime Alerts */}
       <ProductModal />

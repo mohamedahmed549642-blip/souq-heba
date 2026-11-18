@@ -76,30 +76,30 @@ export default function Storefront() {
         </div>
       </div>
 
-      {/* شريط التحكم: القسم الحالي، فلاتر التوفر، الترتيب */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-4 mb-4 sm:mb-6 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4">
-        <div>
-          <h2 className="text-sm sm:text-lg font-black text-slate-900">
+      {/* شريط معلومات القسم والفرز - بتصميم عصري وأنيق وخفيف */}
+      <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6 px-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
             {selectedCategory}
           </h2>
-          <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
-            عرض {filteredProducts.length} من أصل {products.length} منتج
-            {searchQuery && ` مطابقة للبحث عن "${searchQuery}"`}
-          </p>
+          <span className="bg-orange-100 text-orange-700 text-[11px] sm:text-xs font-black px-2.5 py-0.5 rounded-full">
+            {filteredProducts.length} منتج
+          </span>
+          {searchQuery && (
+            <span className="text-[11px] text-slate-500 hidden sm:inline">
+              (مطابقة للبحث "{searchQuery}")
+            </span>
+          )}
         </div>
 
-        {/* قوائم التصفية والفرز */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          {/* الترتيب */}
-          <div className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-[11px] sm:text-xs">
-            <div className="flex items-center gap-1 text-slate-500 font-bold shrink-0">
-              <ArrowUpDown className="w-3.5 h-3.5 text-orange-500" />
-              <span>الترتيب:</span>
-            </div>
+        {/* أدوات الترتيب المدمجة */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 bg-white border border-slate-200/90 shadow-sm px-2.5 py-1.5 rounded-xl text-xs">
+            <ArrowUpDown className="w-3.5 h-3.5 text-orange-500 shrink-0" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer text-[11px] sm:text-xs"
+              className="bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer text-xs pr-1"
             >
               <option value="featured">الأحدث</option>
               <option value="price-asc">الأقل سعراً</option>
@@ -109,14 +109,13 @@ export default function Storefront() {
             </select>
           </div>
 
-          {/* زر إعادة ضبط الفلاتر */}
           {isFiltered && (
             <button
               onClick={resetAllFilters}
-              className="px-2.5 py-1.5 text-[11px] sm:text-xs text-slate-500 hover:text-rose-600 font-bold flex items-center gap-1 transition cursor-pointer"
+              className="p-2 bg-white border border-slate-200 text-slate-500 hover:text-rose-600 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
+              title="إعادة ضبط الفلاتر"
             >
-              <RefreshCw className="w-3 h-3" />
-              <span>إعادة ضبط</span>
+              <RefreshCw className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
