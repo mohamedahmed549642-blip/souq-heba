@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Bell,
   Smartphone,
@@ -24,12 +24,27 @@ export default function AdminNotificationSettings() {
     enablePushNotifications
   } = useShop();
 
-  const [formData, setFormData] = useState({
-    telegramBotToken: adminSettings.telegramBotToken || '',
-    telegramChatId: adminSettings.telegramChatId || '',
-    adminPhone: adminSettings.adminPhone || '01000000000',
-    notifyOnNewOrder: adminSettings.notifyOnNewOrder !== false,
-    enableSoundAlerts: adminSettings.enableSoundAlerts !== false
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('souq_heba_admin_settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          telegramBotToken: parsed.telegramBotToken || '',
+          telegramChatId: parsed.telegramChatId || '',
+          adminPhone: parsed.adminPhone || '01000000000',
+          notifyOnNewOrder: parsed.notifyOnNewOrder !== false,
+          enableSoundAlerts: parsed.enableSoundAlerts !== false
+        };
+      }
+    } catch {}
+    return {
+      telegramBotToken: adminSettings.telegramBotToken || '',
+      telegramChatId: adminSettings.telegramChatId || '',
+      adminPhone: adminSettings.adminPhone || '01000000000',
+      notifyOnNewOrder: adminSettings.notifyOnNewOrder !== false,
+      enableSoundAlerts: adminSettings.enableSoundAlerts !== false
+    };
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -38,12 +53,33 @@ export default function AdminNotificationSettings() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showTelegramHelp, setShowTelegramHelp] = useState(false);
 
+  // Sync formData when server adminSettings finishes loading or updates
+  useEffect(() => {
+    if (adminSettings && (adminSettings.telegramBotToken || adminSettings.telegramChatId)) {
+      setFormData(prev => ({
+        ...prev,
+        telegramBotToken: prev.telegramBotToken || adminSettings.telegramBotToken || '',
+        telegramChatId: prev.telegramChatId || adminSettings.telegramChatId || '',
+        adminPhone: prev.adminPhone && prev.adminPhone !== '01000000000' ? prev.adminPhone : (adminSettings.adminPhone || '01000000000'),
+        notifyOnNewOrder: adminSettings.notifyOnNewOrder !== undefined ? adminSettings.notifyOnNewOrder : prev.notifyOnNewOrder,
+        enableSoundAlerts: adminSettings.enableSoundAlerts !== undefined ? adminSettings.enableSoundAlerts : prev.enableSoundAlerts
+      }));
+    }
+  }, [adminSettings]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    const val = type === 'checkbox' ? checked : value;
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [name]: val
+      };
+      try {
+        localStorage.setItem('souq_heba_admin_settings', JSON.stringify(updated));
+      } catch (err) {}
+      return updated;
+    });
   };
 
   const handleSave = async (e) => {
@@ -52,6 +88,7 @@ export default function AdminNotificationSettings() {
     setSaveSuccess(false);
     setTestResult(null);
     try {
+      localStorage.setItem('souq_heba_admin_settings', JSON.stringify(formData));
       await updateAdminSettings(formData);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 4000);
@@ -71,6 +108,7 @@ export default function AdminNotificationSettings() {
     setIsTesting(true);
     setTestResult(null);
     try {
+      localStorage.setItem('souq_heba_admin_settings', JSON.stringify(formData));
       const res = await testAdminNotification(formData);
       setTestResult({
         success: res.results?.telegram?.ok,

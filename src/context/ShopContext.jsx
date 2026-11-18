@@ -55,12 +55,29 @@ export function ShopProvider({ children }) {
   const [selectedProductForModal, setSelectedProductForModal] = useState(null);
 
   // Real-Time Mobile & Push Notifications State
-  const [adminSettings, setAdminSettings] = useState({
-    adminPhone: '01000000000',
-    telegramBotToken: '',
-    telegramChatId: '',
-    notifyOnNewOrder: true,
-    enableSoundAlerts: true
+  const [adminSettings, setAdminSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('souq_heba_admin_settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          adminPhone: parsed.adminPhone || '01000000000',
+          telegramBotToken: parsed.telegramBotToken || '',
+          telegramChatId: parsed.telegramChatId || '',
+          notifyOnNewOrder: parsed.notifyOnNewOrder !== false,
+          enableSoundAlerts: parsed.enableSoundAlerts !== false
+        };
+      }
+    } catch (e) {
+      console.warn("Could not read admin settings from localStorage:", e);
+    }
+    return {
+      adminPhone: '01000000000',
+      telegramBotToken: '',
+      telegramChatId: '',
+      notifyOnNewOrder: true,
+      enableSoundAlerts: true
+    };
   });
   const [realtimeOrderAlert, setRealtimeOrderAlert] = useState(null);
   const [pushPermission, setPushPermission] = useState(() => {
@@ -124,7 +141,27 @@ export function ShopProvider({ children }) {
       const res = await fetch('/api/admin/settings');
       if (res.ok) {
         const data = await res.json();
-        if (data.settings) setAdminSettings(data.settings);
+        if (data.settings) {
+          setAdminSettings(prev => {
+            // Merge with local state to ensure Telegram Bot Token and Chat ID are NEVER lost
+            const merged = {
+              ...prev,
+              ...data.settings,
+              telegramBotToken: data.settings.telegramBotToken || prev.telegramBotToken || '',
+              telegramChatId: data.settings.telegramChatId || prev.telegramChatId || ''
+            };
+            try {
+              localStorage.setItem('souq_heba_admin_settings', JSON.stringify(merged));
+            } catch (e) {}
+
+            // If server lacked credentials but localStorage has them, auto-sync them to Firestore
+            if ((!data.settings.telegramBotToken && merged.telegramBotToken) ||
+                (!data.settings.telegramChatId && merged.telegramChatId)) {
+              updateAdminSettings(merged).catch(() => {});
+            }
+            return merged;
+          });
+        }
       }
     } catch (err) {
       console.warn("Admin settings fetch error:", err);
@@ -133,13 +170,35 @@ export function ShopProvider({ children }) {
 
   const updateAdminSettings = async (updates) => {
     try {
+      // Save immediately to localStorage so configs are never lost even across sessions
+      setAdminSettings(prev => {
+        const merged = { ...prev, ...updates };
+        try {
+          localStorage.setItem('souq_heba_admin_settings', JSON.stringify(merged));
+        } catch (e) {}
+        return merged;
+      });
+
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
       });
       const data = await res.json();
-      if (data.settings) setAdminSettings(data.settings);
+      if (data.settings) {
+        setAdminSettings(prev => {
+          const merged = {
+            ...prev,
+            ...data.settings,
+            telegramBotToken: data.settings.telegramBotToken || prev.telegramBotToken || '',
+            telegramChatId: data.settings.telegramChatId || prev.telegramChatId || ''
+          };
+          try {
+            localStorage.setItem('souq_heba_admin_settings', JSON.stringify(merged));
+          } catch (e) {}
+          return merged;
+        });
+      }
       return data;
     } catch (err) {
       throw err;
@@ -277,10 +336,16 @@ export function ShopProvider({ children }) {
   // --- ORDER PLACEMENT (CHECKOUT) ---
   const placeOrder = async (orderPayload) => {
     try {
+      const payloadWithSettings = {
+        ...orderPayload,
+        adminTelegramToken: adminSettings?.telegramBotToken || '',
+        adminTelegramChatId: adminSettings?.telegramChatId || ''
+      };
+
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderPayload)
+        body: JSON.stringify(payloadWithSettings)
       });
       const data = await res.json();
       if (!data.success) {

@@ -197,9 +197,9 @@ class StoreDatabase {
     }
   }
 
-  checkSync() {
-    if (Date.now() - this.lastSync > 4000) {
-      this.syncFromFirestore().catch(() => {});
+  async ensureSync() {
+    if (Date.now() - this.lastSync > 3000) {
+      await this.syncFromFirestore();
     }
   }
 
@@ -218,25 +218,27 @@ class StoreDatabase {
   }
 
   write(data) {
+    this.data = data;
     try {
       fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
-      this.data = data;
     } catch (e) {
-      console.error("Failed to write to database:", e);
+      // In read-only serverless filesystems (e.g. Vercel), catch write errors gracefully
     }
   }
 
   // --- PRODUCTS ---
-  getProducts() {
-    this.checkSync();
+  async getProducts() {
+    await this.ensureSync();
     return this.data.products;
   }
 
-  getProductById(id) {
+  async getProductById(id) {
+    await this.ensureSync();
     return this.data.products.find(p => p.id === id);
   }
 
-  addProduct(product) {
+  async addProduct(product) {
+    await this.ensureSync();
     const id = "prod-" + Date.now();
     const newProduct = {
       id,
@@ -275,12 +277,17 @@ class StoreDatabase {
 
     this.write(this.data);
     if (firestoreDb) {
-      setDoc(doc(firestoreDb, 'products', newProduct.id), newProduct).catch(() => {});
+      try {
+        await setDoc(doc(firestoreDb, 'products', newProduct.id), newProduct);
+      } catch (e) {
+        console.warn("Firestore addProduct error:", e.message);
+      }
     }
     return newProduct;
   }
 
-  updateProduct(id, updates) {
+  async updateProduct(id, updates) {
+    await this.ensureSync();
     const index = this.data.products.findIndex(p => p.id === id);
     if (index === -1) return null;
 
@@ -318,12 +325,17 @@ class StoreDatabase {
 
     this.write(this.data);
     if (firestoreDb) {
-      setDoc(doc(firestoreDb, 'products', updated.id), updated).catch(() => {});
+      try {
+        await setDoc(doc(firestoreDb, 'products', updated.id), updated);
+      } catch (e) {
+        console.warn("Firestore updateProduct error:", e.message);
+      }
     }
     return updated;
   }
 
-  deleteProduct(id) {
+  async deleteProduct(id) {
+    await this.ensureSync();
     const index = this.data.products.findIndex(p => p.id === id);
     if (index === -1) return false;
     const removed = this.data.products.splice(index, 1)[0];
@@ -339,14 +351,19 @@ class StoreDatabase {
     });
     this.write(this.data);
     if (firestoreDb) {
-      deleteDoc(doc(firestoreDb, 'products', id)).catch(() => {});
+      try {
+        await deleteDoc(doc(firestoreDb, 'products', id));
+      } catch (e) {
+        console.warn("Firestore deleteProduct error:", e.message);
+      }
     }
     return true;
   }
 
   // --- STOCK TRACKING & ADJUSTMENT ---
-  adjustStock(productId, change, reason = "تعديل يدوي", note = "") {
-    const product = this.getProductById(productId);
+  async adjustStock(productId, change, reason = "تعديل يدوي", note = "") {
+    await this.ensureSync();
+    const product = this.data.products.find(p => p.id === productId);
     if (!product) {
       throw new Error("المنتج غير موجود");
     }
@@ -370,7 +387,11 @@ class StoreDatabase {
 
     this.write(this.data);
     if (firestoreDb) {
-      setDoc(doc(firestoreDb, 'products', product.id), product).catch(() => {});
+      try {
+        await setDoc(doc(firestoreDb, 'products', product.id), product);
+      } catch (e) {
+        console.warn("Firestore adjustStock error:", e.message);
+      }
     }
     return { product, log };
   }
@@ -403,7 +424,8 @@ class StoreDatabase {
   }
 
   // --- ORDERS & CHECKOUT WITH AUTOMATIC STOCK DECREMENT ---
-  createOrder(orderData) {
+  async createOrder(orderData) {
+    await this.ensureSync();
     const { customer, items, paymentMethod, notes, discount = 0, shipping = 0 } = orderData;
 
     if (!items || !items.length) {
@@ -412,7 +434,7 @@ class StoreDatabase {
 
     // Stock verification
     for (const item of items) {
-      const product = this.getProductById(item.id);
+      const product = this.data.products.find(p => p.id === item.id);
       if (!product) {
         throw new Error(`المنتج "${item.name}" لم يعد متوفراً في المتجر.`);
       }
@@ -423,7 +445,7 @@ class StoreDatabase {
 
     let subtotal = 0;
     const processedItems = items.map(item => {
-      const product = this.getProductById(item.id);
+      const product = this.data.products.find(p => p.id === item.id);
       const effectivePrice = product.salePrice !== null ? product.salePrice : product.price;
       const lineTotal = effectivePrice * item.quantity;
       subtotal += lineTotal;
@@ -444,20 +466,22 @@ class StoreDatabase {
 
     // Decrement stock & record audit logs
     for (const item of processedItems) {
-      const product = this.getProductById(item.id);
-      const prevStock = product.stock;
-      product.stock -= item.quantity;
+      const product = this.data.products.find(p => p.id === item.id);
+      if (product) {
+        const prevStock = product.stock;
+        product.stock -= item.quantity;
 
-      this.addInventoryLog({
-        productId: product.id,
-        productName: product.name,
-        sku: product.sku,
-        type: "بيع",
-        change: -item.quantity,
-        previousStock: prevStock,
-        newStock: product.stock,
-        reason: `طلب شراء جديد #${orderId} (${customer.name})`
-      });
+        this.addInventoryLog({
+          productId: product.id,
+          productName: product.name,
+          sku: product.sku,
+          type: "بيع",
+          change: -item.quantity,
+          previousStock: prevStock,
+          newStock: product.stock,
+          reason: `طلب شراء جديد #${orderId} (${customer.name})`
+        });
+      }
     }
 
     const order = {
@@ -481,33 +505,36 @@ class StoreDatabase {
     this.data.orders.unshift(order);
     this.write(this.data);
 
-    // Sync to Cloud Firestore in background
+    // Sync to Cloud Firestore and AWAIT completion so Vercel doesn't freeze the process
     if (firestoreDb) {
-      setDoc(doc(firestoreDb, 'orders', order.id), order).catch(err => {
-        console.warn("Firestore order write warning:", err.message);
-      });
-      for (const item of processedItems) {
-        const prod = this.getProductById(item.id);
-        if (prod) {
-          setDoc(doc(firestoreDb, 'products', prod.id), prod).catch(() => {});
+      try {
+        await setDoc(doc(firestoreDb, 'orders', order.id), order);
+        for (const item of processedItems) {
+          const prod = this.data.products.find(p => p.id === item.id);
+          if (prod) {
+            await setDoc(doc(firestoreDb, 'products', prod.id), prod);
+          }
         }
+      } catch (err) {
+        console.warn("Firestore order write warning:", err.message);
       }
     }
 
     return order;
   }
 
-  getOrders() {
-    this.checkSync();
+  async getOrders() {
+    await this.ensureSync();
     return this.data.orders || [];
   }
 
-  getOrderById(id) {
-    this.checkSync();
+  async getOrderById(id) {
+    await this.ensureSync();
     return (this.data.orders || []).find(o => o.id === id || o.trackingNumber === id);
   }
 
-  updateOrderStatus(orderId, status, restock = false) {
+  async updateOrderStatus(orderId, status, restock = false) {
+    await this.ensureSync();
     const order = (this.data.orders || []).find(o => o.id === orderId);
     if (!order) return null;
 
@@ -518,7 +545,7 @@ class StoreDatabase {
     // Restock if cancelled
     if (status.includes("ملغي") && !oldStatus.includes("ملغي") && restock) {
       for (const item of order.items) {
-        const product = this.getProductById(item.id);
+        const product = this.data.products.find(p => p.id === item.id);
         if (product) {
           const prevStock = product.stock;
           product.stock += item.quantity;
@@ -533,7 +560,9 @@ class StoreDatabase {
             reason: `إلغاء الطلب وإعادة القطع للمخزون #${order.id}`
           });
           if (firestoreDb) {
-            setDoc(doc(firestoreDb, 'products', product.id), product).catch(() => {});
+            try {
+              await setDoc(doc(firestoreDb, 'products', product.id), product);
+            } catch (e) {}
           }
         }
       }
@@ -541,13 +570,17 @@ class StoreDatabase {
 
     this.write(this.data);
     if (firestoreDb) {
-      setDoc(doc(firestoreDb, 'orders', order.id), order).catch(() => {});
+      try {
+        await setDoc(doc(firestoreDb, 'orders', order.id), order);
+      } catch (e) {
+        console.warn("Firestore updateOrderStatus error:", e.message);
+      }
     }
     return order;
   }
 
-  getStats() {
-    this.checkSync();
+  async getStats() {
+    await this.ensureSync();
     const products = this.data.products || [];
     const orders = this.data.orders || [];
     const logs = this.data.inventoryLogs || [];
@@ -561,8 +594,8 @@ class StoreDatabase {
     const totalInventoryAssetValue = products.reduce((acc, p) => acc + ((p.stock || 0) * (p.costPrice || p.price * 0.5)), 0);
     const totalRetailPotentialValue = products.reduce((acc, p) => acc + ((p.stock || 0) * (p.salePrice || p.price)), 0);
 
-    const completedOrders = orders.filter(o => !o.status.includes("ملغي"));
-    const totalRevenue = completedOrders.reduce((acc, o) => acc + (o.total || 0), 0);
+    const completedOrders = orders.filter(o => !o.status?.includes("ملغي"));
+    const totalRevenue = completedOrders.reduce((acc, o) => acc + (Number(o.total) || 0), 0);
     const pendingOrders = orders.filter(o => o.status === "قيد الانتظار" || o.status === "قيد التجهيز").length;
 
     return {
@@ -588,8 +621,8 @@ class StoreDatabase {
     return initial;
   }
 
-  getSettings() {
-    this.checkSync();
+  async getSettings() {
+    await this.ensureSync();
     if (!this.data.settings) {
       this.data.settings = {
         adminPhone: "01000000000",
@@ -602,12 +635,17 @@ class StoreDatabase {
     return this.data.settings;
   }
 
-  updateSettings(updates) {
-    const current = this.getSettings();
+  async updateSettings(updates) {
+    await this.ensureSync();
+    const current = this.data.settings || {};
     this.data.settings = { ...current, ...updates };
     this.write(this.data);
     if (firestoreDb) {
-      setDoc(doc(firestoreDb, 'settings', 'admin'), this.data.settings).catch(() => {});
+      try {
+        await setDoc(doc(firestoreDb, 'settings', 'admin'), this.data.settings);
+      } catch (err) {
+        console.warn("Could not save settings to Firestore:", err.message);
+      }
     }
     return this.data.settings;
   }

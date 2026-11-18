@@ -101,9 +101,9 @@ app.post('/api/upload', (req, res) => {
 // --- PRODUCT ROUTES ---
 
 // GET /api/products
-app.get('/api/products', (req, res) => {
+app.get('/api/products', async (req, res) => {
   try {
-    let products = db.getProducts();
+    let products = await db.getProducts();
     const { category, search, stockStatus } = req.query;
 
     if (category && category !== 'جميع الأقسام' && category !== 'All Categories') {
@@ -143,22 +143,26 @@ app.get('/api/categories', (req, res) => {
 });
 
 // GET /api/products/:id
-app.get('/api/products/:id', (req, res) => {
-  const product = db.getProductById(req.params.id);
-  if (!product) {
-    return res.status(404).json({ success: false, error: 'المنتج غير موجود' });
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const product = await db.getProductById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ success: false, error: 'المنتج غير موجود' });
+    }
+    res.json({ success: true, product });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
-  res.json({ success: true, product });
 });
 
 // POST /api/products (Admin creates product)
-app.post('/api/products', (req, res) => {
+app.post('/api/products', async (req, res) => {
   try {
     const { name, price } = req.body;
     if (!name || price === undefined) {
       return res.status(400).json({ success: false, error: 'اسم المنتج وسعر البيع حقول مطلوبة.' });
     }
-    const newProduct = db.addProduct(req.body);
+    const newProduct = await db.addProduct(req.body);
     res.status(201).json({ success: true, product: newProduct });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
@@ -166,9 +170,9 @@ app.post('/api/products', (req, res) => {
 });
 
 // PUT /api/products/:id (Admin edits product)
-app.put('/api/products/:id', (req, res) => {
+app.put('/api/products/:id', async (req, res) => {
   try {
-    const updated = db.updateProduct(req.params.id, req.body);
+    const updated = await db.updateProduct(req.params.id, req.body);
     if (!updated) {
       return res.status(404).json({ success: false, error: 'المنتج غير موجود' });
     }
@@ -179,22 +183,26 @@ app.put('/api/products/:id', (req, res) => {
 });
 
 // DELETE /api/products/:id (Admin deletes product)
-app.delete('/api/products/:id', (req, res) => {
-  const success = db.deleteProduct(req.params.id);
-  if (!success) {
-    return res.status(404).json({ success: false, error: 'المنتج غير موجود' });
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    const success = await db.deleteProduct(req.params.id);
+    if (!success) {
+      return res.status(404).json({ success: false, error: 'المنتج غير موجود' });
+    }
+    res.json({ success: true, message: 'تم حذف المنتج بنجاح' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
-  res.json({ success: true, message: 'تم حذف المنتج بنجاح' });
 });
 
 // PATCH /api/products/:id/stock (Stock adjustment)
-app.patch('/api/products/:id/stock', (req, res) => {
+app.patch('/api/products/:id/stock', async (req, res) => {
   try {
     const { change, reason, note } = req.body;
     if (change === undefined) {
       return res.status(400).json({ success: false, error: 'كمية تعديل المخزون مطلوبة' });
     }
-    const result = db.adjustStock(req.params.id, change, reason, note);
+    const result = await db.adjustStock(req.params.id, change, reason, note);
     res.json({ success: true, ...result });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
@@ -211,33 +219,54 @@ app.get('/api/inventory/logs', (req, res) => {
 // --- ORDERS ROUTES ---
 
 // GET /api/orders
-app.get('/api/orders', (req, res) => {
-  const orders = db.getOrders();
-  res.json({ success: true, count: orders.length, orders });
+app.get('/api/orders', async (req, res) => {
+  try {
+    const orders = await db.getOrders();
+    res.json({ success: true, count: orders.length, orders });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // GET /api/orders/:id
-app.get('/api/orders/:id', (req, res) => {
-  const order = db.getOrderById(req.params.id);
-  if (!order) {
-    return res.status(404).json({ success: false, error: 'لم يتم العثور على طلب بهذا الرقم أو كود التتبع.' });
+app.get('/api/orders/:id', async (req, res) => {
+  try {
+    const order = await db.getOrderById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'لم يتم العثور على طلب بهذا الرقم أو كود التتبع.' });
+    }
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
-  res.json({ success: true, order });
 });
 
 // POST /api/orders (Customer checkout with Real-Time Admin Notifications)
 app.post('/api/orders', async (req, res) => {
   try {
-    const order = db.createOrder(req.body);
+    const order = await db.createOrder(req.body);
 
-    // Asynchronously dispatch mobile notifications to admin (Telegram / Push)
+    // CRITICAL: Await Telegram dispatch BEFORE sending response so Vercel doesn't freeze the process!
     try {
-      const settings = db.getSettings();
-      sendAdminOrderNotifications(order, settings).catch(err => {
-        console.warn("Mobile notification background dispatch warning:", err);
-      });
+      const serverSettings = await db.getSettings();
+      const effectiveSettings = {
+        ...serverSettings,
+        telegramBotToken: serverSettings.telegramBotToken || req.body.adminTelegramToken || process.env.TELEGRAM_BOT_TOKEN,
+        telegramChatId: serverSettings.telegramChatId || req.body.adminTelegramChatId || process.env.TELEGRAM_CHAT_ID
+      };
+
+      if (effectiveSettings.telegramBotToken && effectiveSettings.telegramChatId) {
+        await sendAdminOrderNotifications(order, effectiveSettings);
+        // If server had empty settings, persist the active credentials to Firestore
+        if (!serverSettings.telegramBotToken || !serverSettings.telegramChatId) {
+          await db.updateSettings({
+            telegramBotToken: effectiveSettings.telegramBotToken,
+            telegramChatId: effectiveSettings.telegramChatId
+          });
+        }
+      }
     } catch (notifErr) {
-      console.warn("Could not dispatch mobile notification:", notifErr);
+      console.warn("Mobile notification dispatch warning:", notifErr);
     }
 
     res.status(201).json({ success: true, order });
@@ -248,27 +277,40 @@ app.post('/api/orders', async (req, res) => {
 
 // --- ADMIN SETTINGS & REAL-TIME MOBILE NOTIFICATION CONFIG ---
 // GET /api/admin/settings
-app.get('/api/admin/settings', (req, res) => {
-  const settings = db.getSettings();
-  res.json({ success: true, settings });
+app.get('/api/admin/settings', async (req, res) => {
+  try {
+    const settings = await db.getSettings();
+    res.json({ success: true, settings });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // POST /api/admin/settings
-app.post('/api/admin/settings', (req, res) => {
-  const settings = db.updateSettings(req.body);
-  res.json({ success: true, settings, message: 'تم حفظ إعدادات إشعارات الإدارة بنجاح' });
+app.post('/api/admin/settings', async (req, res) => {
+  try {
+    const settings = await db.updateSettings(req.body);
+    res.json({ success: true, settings, message: 'تم حفظ إعدادات إشعارات الإدارة بنجاح' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // POST /api/admin/test-notification
 app.post('/api/admin/test-notification', async (req, res) => {
   try {
-    const settings = db.getSettings();
+    const settings = await db.getSettings();
+    const effectiveSettings = {
+      ...settings,
+      ...(req.body || {})
+    };
+
     const testOrder = {
       id: "ORD-TEST-" + Math.floor(1000 + Math.random() * 9000),
       trackingNumber: "SH-2026-TEST",
       customer: {
         name: "تجربة إشعار الإدارة",
-        phone: settings.adminPhone || "01000000000",
+        phone: effectiveSettings.adminPhone || "01000000000",
         address: "القاهرة، جمهورية مصر العربية"
       },
       items: [
@@ -280,13 +322,22 @@ app.post('/api/admin/test-notification', async (req, res) => {
       notes: "هذا إشعار تجريبي لاختبار وصول التنبيهات اللحظية لهاتف المشرف."
     };
 
-    const results = await sendAdminOrderNotifications(testOrder, req.body || settings);
+    const results = await sendAdminOrderNotifications(testOrder, effectiveSettings);
+
+    // If test notification was delivered to Telegram, persist these verified settings to Firestore
+    if (results.telegram?.ok) {
+      await db.updateSettings({
+        telegramBotToken: effectiveSettings.telegramBotToken,
+        telegramChatId: effectiveSettings.telegramChatId
+      });
+    }
+
     res.json({
       success: true,
       results,
       message: results.telegram?.ok
         ? "تم إرسال إشعار تجريبي إلى هاتفك عبر تيليجرام بنجاح! 🚀"
-        : "تم فحص إعدادات الإشعارات بنجاح."
+        : (results.errors?.[0] || "تم فحص إعدادات الإشعارات.")
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -294,13 +345,13 @@ app.post('/api/admin/test-notification', async (req, res) => {
 });
 
 // PATCH /api/orders/:id/status (Admin updates order status)
-app.patch('/api/orders/:id/status', (req, res) => {
+app.patch('/api/orders/:id/status', async (req, res) => {
   try {
     const { status, restock } = req.body;
     if (!status) {
       return res.status(400).json({ success: false, error: 'الحالة مطلوبة' });
     }
-    const order = db.updateOrderStatus(req.params.id, status, !!restock);
+    const order = await db.updateOrderStatus(req.params.id, status, !!restock);
     if (!order) {
       return res.status(404).json({ success: false, error: 'الطلب غير موجود' });
     }
@@ -311,9 +362,9 @@ app.patch('/api/orders/:id/status', (req, res) => {
 });
 
 // --- STATS & OVERVIEW ---
-app.get('/api/stats', (req, res) => {
+app.get('/api/stats', async (req, res) => {
   try {
-    const stats = db.getStats();
+    const stats = await db.getStats();
     res.json({ success: true, stats });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
