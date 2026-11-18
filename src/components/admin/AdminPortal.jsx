@@ -168,15 +168,16 @@ export default function AdminPortal() {
               <span>عرض المتجر للعملاء</span>
             </button>
             <div className="h-6 w-px bg-slate-800 hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white shadow-sm">
-                <ShieldCheck className="w-4 h-4" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-white shadow-sm ring-2 ring-orange-500/40 shrink-0">
+                <img src="/logo.png" alt="سوق هبة" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h1 className="text-sm sm:text-base font-black tracking-tight">
-                  سوق هبة • لوحة الإدارة المركزية
+                <h1 className="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-1.5">
+                  <span>سوق هبة</span>
+                  <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded font-black">ADMIN</span>
                 </h1>
-                <p className="text-[11px] text-slate-400 font-medium">مراقبة المخزون، كتالوج المنتجات، معالجة الطلبات وإشعارات الموبايل</p>
+                <p className="text-[11px] text-slate-400 font-medium">لوحة الإدارة المركزية • المخزون، الطلبات وإشعارات الموبايل</p>
               </div>
             </div>
           </div>

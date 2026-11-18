@@ -39,10 +39,10 @@ export default function MobileBottomNav() {
         {/* المتجر / الرئيسية */}
         <button
           onClick={handleScrollToTop}
-          className="flex flex-col items-center justify-center py-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition cursor-pointer"
+          className="flex flex-col items-center justify-center py-1 text-slate-700 hover:text-orange-600 active:scale-95 transition cursor-pointer"
         >
           <div className="w-9 h-7 flex items-center justify-center">
-            <Store className="w-5 h-5 text-emerald-600" />
+            <Store className="w-5 h-5 text-orange-600" />
           </div>
           <span className="text-[10px] font-bold mt-0.5 leading-none">الرئيسية</span>
         </button>
@@ -50,10 +50,10 @@ export default function MobileBottomNav() {
         {/* الأقسام */}
         <button
           onClick={handleScrollToCategories}
-          className="flex flex-col items-center justify-center py-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition cursor-pointer"
+          className="flex flex-col items-center justify-center py-1 text-slate-700 hover:text-orange-600 active:scale-95 transition cursor-pointer"
         >
           <div className="w-9 h-7 flex items-center justify-center">
-            <Grid className="w-5 h-5 text-slate-500" />
+            <Grid className="w-5 h-5 text-[#0c2340]" />
           </div>
           <span className="text-[10px] font-bold mt-0.5 leading-none">الأقسام</span>
         </button>
@@ -72,12 +72,12 @@ export default function MobileBottomNav() {
         {/* سلة المشتريات */}
         <button
           onClick={() => setIsCartOpen(true)}
-          className="relative flex flex-col items-center justify-center py-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition cursor-pointer"
+          className="relative flex flex-col items-center justify-center py-1 text-slate-700 hover:text-orange-600 active:scale-95 transition cursor-pointer"
         >
           <div className="relative w-9 h-7 flex items-center justify-center">
-            <ShoppingBag className="w-5 h-5 text-emerald-600" />
+            <ShoppingBag className="w-5 h-5 text-orange-600" />
             {cartTotalItems > 0 && (
-              <span className="absolute -top-1 -right-1 bg-amber-400 text-slate-950 font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-sm animate-pulse">
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-sm animate-pulse">
                 {cartTotalItems}
               </span>
             )}

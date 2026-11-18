@@ -170,7 +170,7 @@ export default function ProductModal() {
 
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer text-xs sm:text-sm"
+                  className="flex-1 py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer text-xs sm:text-sm"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>إضافة {quantity} للسلة • {formatCurrency(currentPrice * quantity)}</span>

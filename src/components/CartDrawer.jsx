@@ -227,7 +227,7 @@ export default function CartDrawer() {
             {/* زر متابعة الدفع */}
             <button
               onClick={handleProceedCheckout}
-              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer text-sm"
+              className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer text-sm"
             >
               <span>متابعة إتمام الطلب والدفع</span>
               <ArrowLeft className="w-4 h-4" />

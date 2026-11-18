@@ -53,8 +53,8 @@ export default function Storefront() {
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 ${
                 selectedCategory.toLowerCase() === cat.toLowerCase()
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
+                  ? 'bg-gradient-to-r from-[#0c2340] to-[#133e7c] text-white shadow-md shadow-blue-900/20 ring-2 ring-orange-500/50'
+                  : 'bg-white text-slate-700 border border-slate-200 hover:border-orange-400 hover:text-orange-600 hover:bg-slate-50'
               }`}
             >
               {cat === 'جميع الأقسام' && <Sparkles className="w-3.5 h-3.5 text-amber-300" />}

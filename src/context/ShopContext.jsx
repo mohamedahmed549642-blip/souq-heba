@@ -11,11 +11,11 @@ export function ShopProvider({ children }) {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([
     "جميع الأقسام",
-    "عطور وعود",
-    "أزياء وعبايات",
-    "إلكترونيات",
-    "قهوة ومأكولات فاخرة",
-    "ديكور ومنزل"
+    "إلكترونيات وشواحن",
+    "ساعات وسماعات ذكية",
+    "عناية شخصية وحلاقة",
+    "منتجات سيناء الطبيعية",
+    "إكسسوارات وهدايا"
   ]);
   const [orders, setOrders] = useState([]);
   const [inventoryLogs, setInventoryLogs] = useState([]);
@@ -84,7 +84,7 @@ export function ShopProvider({ children }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
-          adminPhone: parsed.adminPhone || '01000000000',
+          adminPhone: parsed.adminPhone && parsed.adminPhone !== '01000000000' ? parsed.adminPhone : '01099298496',
           telegramBotToken: parsed.telegramBotToken || '',
           telegramChatId: parsed.telegramChatId || '',
           notifyOnNewOrder: parsed.notifyOnNewOrder !== false,
@@ -95,7 +95,7 @@ export function ShopProvider({ children }) {
       console.warn("Could not read admin settings from localStorage:", e);
     }
     return {
-      adminPhone: '01000000000',
+      adminPhone: '01099298496',
       telegramBotToken: '',
       telegramChatId: '',
       notifyOnNewOrder: true,

@@ -19,7 +19,7 @@ export default function ProductCard({ product }) {
     : 0;
 
   return (
-    <div className="group bg-white rounded-2xl border border-slate-200/80 hover:border-emerald-300 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative text-right" dir="rtl">
+    <div className="group bg-white rounded-2xl border border-slate-200/90 hover:border-orange-400 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative text-right" dir="rtl">
       {/* شارة الخصم */}
       <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-start">
         {discountPercent > 0 && (
@@ -74,7 +74,7 @@ export default function ProductCard({ product }) {
             }}
             className="px-4 py-2 bg-white/95 hover:bg-white text-slate-900 text-xs font-bold rounded-xl shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition cursor-pointer"
           >
-            <Eye className="w-4 h-4 text-emerald-600" />
+            <Eye className="w-4 h-4 text-orange-600" />
             <span>معاينة سريعة</span>
           </button>
         </div>
@@ -84,7 +84,7 @@ export default function ProductCard({ product }) {
       <div className="p-2.5 sm:p-4 flex flex-col flex-1">
         {/* القسم وكود SKU */}
         <div className="flex items-center justify-between text-[9px] sm:text-[11px] text-slate-400 font-medium mb-1">
-          <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md font-bold truncate max-w-[100px]">
+          <span className="text-[#0c2340] bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded-md font-bold truncate max-w-[120px]">
             {product.category}
           </span>
           <span className="font-mono text-slate-400 hidden sm:inline">{product.sku}</span>
@@ -93,7 +93,7 @@ export default function ProductCard({ product }) {
         {/* اسم المنتج */}
         <h3
           onClick={() => setSelectedProductForModal(product)}
-          className="font-bold text-slate-900 text-xs sm:text-sm hover:text-emerald-700 transition line-clamp-2 min-h-[2rem] sm:min-h-0 cursor-pointer mb-1 leading-snug"
+          className="font-bold text-slate-900 text-xs sm:text-sm hover:text-orange-600 transition line-clamp-2 min-h-[2rem] sm:min-h-0 cursor-pointer mb-1 leading-snug"
           title={product.name}
         >
           {product.name}
@@ -123,7 +123,7 @@ export default function ProductCard({ product }) {
               )}
             </div>
             {inCartQty > 0 && (
-              <span className="text-[9px] sm:text-[10px] text-emerald-700 font-bold block">
+              <span className="text-[9px] sm:text-[10px] text-orange-600 font-bold block">
                 في السلة: {inCartQty}
               </span>
             )}
@@ -138,7 +138,7 @@ export default function ProductCard({ product }) {
                 ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
                 : isMaxInCart
                 ? 'bg-amber-100 text-amber-800 border border-amber-200 cursor-not-allowed'
-                : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20 active:scale-95 cursor-pointer'
+                : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-500/25 active:scale-95 cursor-pointer'
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
