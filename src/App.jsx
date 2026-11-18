@@ -10,6 +10,7 @@ import CheckoutModal from './components/CheckoutModal';
 import OrderTrackingModal from './components/OrderTrackingModal';
 import AdminLoginModal from './components/AdminLoginModal';
 import RealtimeOrderToast from './components/RealtimeOrderToast';
+import MobileBottomNav from './components/MobileBottomNav';
 
 function ShopContent() {
   const { isAdminOpen } = useShop();
@@ -18,7 +19,7 @@ function ShopContent() {
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900 selection:bg-emerald-500 selection:text-white">
       <Navbar />
 
-      <main className="flex-1">
+      <main className="flex-1 pb-20 md:pb-0">
         {isAdminOpen ? (
           <AdminPortal />
         ) : (
@@ -27,6 +28,9 @@ function ShopContent() {
       </main>
 
       {!isAdminOpen && <Footer />}
+
+      {/* Modern App-Style Mobile Bottom Navigation Bar */}
+      <MobileBottomNav />
 
       {/* Global Interactive Modals */}
       <ProductModal />

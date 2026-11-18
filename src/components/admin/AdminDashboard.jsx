@@ -106,67 +106,67 @@ export default function AdminDashboard({ onTabChange, onOpenAddProduct }) {
         </div>
       )}
 
-      {/* بطاقات مؤشرات الأداء الرئيسية */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* بطاقات مؤشرات الأداء الرئيسية (عمودين على الهاتف وأربعة على الشاشات الكبيرة) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* إجمالي المبيعات */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">إجمالي المبيعات</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
+        <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 mb-1.5 sm:mb-2">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">إجمالي المبيعات</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-[10px] sm:text-xs">
               ج.م
             </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mb-1">
+          <div className="text-lg sm:text-2xl font-black text-slate-900 mb-1">
             {formatCurrency(totalRevenue)}
           </div>
-          <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" /> من واقع {orders.length} طلب عملاء
+          <span className="text-[10px] sm:text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+            <TrendingUp className="w-3 h-3" /> {orders.length} طلب عملاء
           </span>
         </div>
 
         {/* إجمالي طلبات العملاء */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">إجمالي الطلبات</span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <ShoppingBag className="w-4 h-4" />
+        <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 mb-1.5 sm:mb-2">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">إجمالي الطلبات</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mb-1">
+          <div className="text-lg sm:text-2xl font-black text-slate-900 mb-1">
             {orders.length}
           </div>
-          <span className="text-[11px] text-slate-500 font-bold">
-            {pendingOrdersCount} طلب قيد التجهيز والشحن
+          <span className="text-[10px] sm:text-[11px] text-slate-500 font-bold">
+            {pendingOrdersCount} قيد الشحن والتجهيز
           </span>
         </div>
 
         {/* قيمة أصول المخزون المستودعي */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">قيمة أصول المخزون</span>
-            <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-              <Boxes className="w-4 h-4" />
+        <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 mb-1.5 sm:mb-2">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">قيمة المخزون</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+              <Boxes className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mb-1">
+          <div className="text-lg sm:text-2xl font-black text-slate-900 mb-1">
             {formatCurrency(totalAssetValue)}
           </div>
-          <span className="text-[11px] text-slate-500 font-medium">
-            القيمة السوقية للبيع: {formatCurrency(totalRetailValue)}
+          <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate block">
+            البيع: {formatCurrency(totalRetailValue)}
           </span>
         </div>
 
         {/* صحة المخزون */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">سلامة المخزون</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-              <AlertTriangle className="w-4 h-4" />
+        <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 mb-1.5 sm:mb-2">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">سلامة المخزون</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-2xl font-black text-slate-900">{inStockCount}</span>
-            <span className="text-xs text-slate-400 font-bold">/ {totalProducts} منتج صحي</span>
+          <div className="flex items-baseline gap-1.5 mb-1">
+            <span className="text-lg sm:text-2xl font-black text-slate-900">{inStockCount}</span>
+            <span className="text-[10px] sm:text-xs text-slate-400 font-bold">/ {totalProducts} منتج</span>
           </div>
           <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden flex">
             <div

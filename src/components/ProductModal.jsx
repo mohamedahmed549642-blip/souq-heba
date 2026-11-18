@@ -43,34 +43,34 @@ export default function ProductModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200" dir="rtl">
-      <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col md:flex-row max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200" dir="rtl">
+      <div className="relative w-full max-w-3xl bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col md:flex-row max-h-[92vh] sm:max-h-[90vh]">
         {/* زر الإغلاق */}
         <button
           onClick={() => setSelectedProductForModal(null)}
-          className="absolute top-4 left-4 z-20 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-slate-600 hover:text-slate-900 shadow-md flex items-center justify-center transition cursor-pointer"
+          className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 hover:bg-white text-slate-600 hover:text-slate-900 shadow-md flex items-center justify-center transition cursor-pointer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
         {/* قسم صورة المنتج */}
-        <div className="md:w-1/2 bg-slate-50 relative flex items-center justify-center p-6 border-b md:border-b-0 md:border-l border-slate-100">
+        <div className="md:w-1/2 bg-slate-50 relative flex items-center justify-center p-4 sm:p-6 border-b md:border-b-0 md:border-l border-slate-100">
           <img
             src={product.image}
             alt={product.name}
-            className={`w-full max-h-[350px] object-cover rounded-2xl shadow-md ${
+            className={`w-full max-h-[200px] sm:max-h-[350px] object-cover rounded-2xl shadow-md ${
               isOutOfStock ? 'grayscale' : ''
             }`}
           />
           {product.salePrice && (
-            <span className="absolute top-6 right-6 bg-rose-500 text-white text-xs font-black px-3 py-1.5 rounded-xl shadow">
+            <span className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-rose-500 text-white text-[10px] sm:text-xs font-black px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl shadow">
               عرض خاص
             </span>
           )}
         </div>
 
         {/* تفاصيل المنتج */}
-        <div className="md:w-1/2 p-6 sm:p-8 flex flex-col overflow-y-auto text-right">
+        <div className="md:w-1/2 p-4 sm:p-8 flex flex-col overflow-y-auto text-right">
           {/* القسم وكود SKU */}
           <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
             <span className="bg-emerald-50 text-emerald-800 font-bold px-2.5 py-1 rounded-lg">

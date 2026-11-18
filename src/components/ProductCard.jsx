@@ -21,30 +21,32 @@ export default function ProductCard({ product }) {
   return (
     <div className="group bg-white rounded-2xl border border-slate-200/80 hover:border-emerald-300 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative text-right" dir="rtl">
       {/* شارة الخصم */}
-      <div className="absolute top-3 right-3 z-10 flex flex-col gap-1.5 items-start">
+      <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-start">
         {discountPercent > 0 && (
-          <span className="bg-rose-500 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm">
+          <span className="bg-rose-500 text-white text-[9px] sm:text-[11px] font-extrabold px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg shadow-sm">
             خصم {discountPercent}%
           </span>
         )}
       </div>
 
       {/* شارة حالة المخزون */}
-      <div className="absolute top-3 left-3 z-10">
+      <div className="absolute top-2 left-2 z-10">
         {isOutOfStock ? (
-          <span className="inline-flex items-center gap-1 bg-rose-600/90 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm backdrop-blur-sm">
-            <XCircle className="w-3 h-3" />
-            <span>نفد من المخزون</span>
+          <span className="inline-flex items-center gap-1 bg-rose-600/90 text-white text-[9px] sm:text-[11px] font-bold px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg shadow-sm backdrop-blur-sm">
+            <XCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+            <span className="hidden sm:inline">نفد من المخزون</span>
+            <span className="sm:hidden">نفد</span>
           </span>
         ) : isLowStock ? (
-          <span className="inline-flex items-center gap-1 bg-amber-500 text-slate-950 text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm animate-pulse">
-            <AlertCircle className="w-3 h-3" />
-            <span>متبقي {product.stock} فقط!</span>
+          <span className="inline-flex items-center gap-1 bg-amber-500 text-slate-950 text-[9px] sm:text-[11px] font-bold px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg shadow-sm animate-pulse">
+            <AlertCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+            <span>متبقي {product.stock}!</span>
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 bg-emerald-600/90 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg shadow-sm backdrop-blur-sm">
-            <CheckCircle2 className="w-3 h-3 text-emerald-200" />
-            <span>متوفر ({product.stock})</span>
+          <span className="inline-flex items-center gap-1 bg-emerald-600/90 text-white text-[9px] sm:text-[11px] font-bold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md sm:rounded-lg shadow-sm backdrop-blur-sm">
+            <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-200" />
+            <span className="hidden sm:inline">متوفر ({product.stock})</span>
+            <span className="sm:hidden">{product.stock} ق</span>
           </span>
         )}
       </div>
@@ -64,7 +66,7 @@ export default function ProductCard({ product }) {
         />
 
         {/* زر معاينة سريعة عند التحويم */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="hidden sm:flex absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -79,56 +81,50 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* بيانات المنتج */}
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-2.5 sm:p-4 flex flex-col flex-1">
         {/* القسم وكود SKU */}
-        <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium mb-1.5">
-          <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-bold">
+        <div className="flex items-center justify-between text-[9px] sm:text-[11px] text-slate-400 font-medium mb-1">
+          <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md font-bold truncate max-w-[100px]">
             {product.category}
           </span>
-          <span className="font-mono text-slate-400">{product.sku}</span>
+          <span className="font-mono text-slate-400 hidden sm:inline">{product.sku}</span>
         </div>
 
         {/* اسم المنتج */}
         <h3
           onClick={() => setSelectedProductForModal(product)}
-          className="font-bold text-slate-900 text-sm hover:text-emerald-700 transition line-clamp-1 cursor-pointer mb-0.5"
+          className="font-bold text-slate-900 text-xs sm:text-sm hover:text-emerald-700 transition line-clamp-2 min-h-[2rem] sm:min-h-0 cursor-pointer mb-1 leading-snug"
           title={product.name}
         >
           {product.name}
         </h3>
 
-        {product.nameEn && (
-          <p className="text-[11px] text-slate-400 font-mono truncate mb-2">
-            {product.nameEn}
-          </p>
-        )}
-
         {/* التقييم */}
-        <div className="flex items-center gap-1.5 mb-3 text-xs">
+        <div className="flex items-center gap-1 mb-2 text-[10px] sm:text-xs">
           <div className="flex items-center text-amber-400">
-            <Star className="w-3.5 h-3.5 fill-current" />
+            <Star className="w-3 h-3 fill-current" />
           </div>
           <span className="font-bold text-slate-800">{product.rating}</span>
-          <span className="text-slate-400">({product.reviewsCount} تقييم)</span>
+          <span className="text-slate-400 hidden sm:inline">({product.reviewsCount} تقييم)</span>
         </div>
 
         {/* السعر وزر الشراء */}
-        <div className="mt-auto pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+        <div className="mt-auto pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
           {/* الأسعار */}
           <div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-base sm:text-lg font-black text-slate-900">
+            <div className="flex items-baseline gap-1">
+              <span className="text-xs sm:text-base font-black text-slate-900">
                 {formatCurrency(currentPrice)}
               </span>
               {product.salePrice && (
-                <span className="text-xs text-slate-400 line-through">
+                <span className="text-[10px] sm:text-xs text-slate-400 line-through">
                   {formatCurrency(product.price)}
                 </span>
               )}
             </div>
             {inCartQty > 0 && (
-              <span className="text-[10px] text-emerald-700 font-bold block">
-                في سلتك: {inCartQty} قطعة
+              <span className="text-[9px] sm:text-[10px] text-emerald-700 font-bold block">
+                في السلة: {inCartQty}
               </span>
             )}
           </div>
@@ -137,7 +133,7 @@ export default function ProductCard({ product }) {
           <button
             onClick={() => addToCart(product, 1)}
             disabled={isOutOfStock || isMaxInCart}
-            className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm ${
+            className={`w-full sm:w-auto px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition shadow-sm ${
               isOutOfStock
                 ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
                 : isMaxInCart

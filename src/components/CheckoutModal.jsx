@@ -240,7 +240,7 @@ export default function CheckoutModal() {
                       placeholder="مثال: أحمد محمود إبراهيم"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium"
+                      className="w-full px-3.5 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium"
                     />
                   </div>
                   <div>
@@ -254,7 +254,7 @@ export default function CheckoutModal() {
                       placeholder="01012345678 أو 011 أو 012"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-mono text-left"
+                      className="w-full px-3.5 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-mono text-left"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -267,7 +267,7 @@ export default function CheckoutModal() {
                       placeholder="name@example.com"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-left font-mono"
+                      className="w-full px-3.5 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-left font-mono"
                     />
                   </div>
                 </div>
@@ -290,7 +290,7 @@ export default function CheckoutModal() {
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-bold text-slate-800"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-bold text-slate-800"
                     >
                       {EGYPT_GOVERNORATES.map(gov => (
                         <option key={gov} value={gov}>
@@ -311,7 +311,7 @@ export default function CheckoutModal() {
                       placeholder="مثال: 15 شارع عباس العقاد، متفرع من النصر، عمارة 4 شقة 6"
                       value={formData.address}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
+                      className="w-full px-3.5 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
                     />
                   </div>
 
@@ -325,7 +325,7 @@ export default function CheckoutModal() {
                       placeholder="بجوار مسجد / صيدلية كذا، الاتصال قبل الوصول بنصف ساعة..."
                       value={formData.notes}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
+                      className="w-full px-3.5 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
                     />
                   </div>
                 </div>

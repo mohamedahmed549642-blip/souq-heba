@@ -172,9 +172,108 @@ export default function AdminInventory() {
             </div>
           </div>
 
-          {/* جدول رصيد المخزون */}
+          {/* جدول وبطاقات رصيد المخزون */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* بطاقات مخصصة للهواتف الذكية */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {filteredInventory.length === 0 ? (
+                <div className="py-8 text-center text-slate-400 text-xs font-bold">
+                  لا توجد منتجات تطابق الفلتر المختار.
+                </div>
+              ) : (
+                filteredInventory.map(product => {
+                  const isOutOfStock = product.stock <= 0;
+                  const isLowStock = product.stock > 0 && product.stock <= product.lowStockThreshold;
+                  return (
+                    <div key={product.id} className="p-3.5 space-y-2.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-12 h-12 rounded-xl object-cover bg-slate-100 border border-slate-100 shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-slate-900 text-xs truncate" title={product.name}>
+                              {product.name}
+                            </h4>
+                            <span className="font-mono text-[10px] text-slate-400 block">{product.sku} • {product.category}</span>
+                            <span className="text-[11px] font-black text-slate-900 mt-0.5 block">
+                              {formatCurrency(product.salePrice || product.price)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-left shrink-0">
+                          <span className={`inline-block font-mono font-black text-base ${
+                            isOutOfStock ? 'text-rose-600' : isLowStock ? 'text-amber-600' : 'text-emerald-700'
+                          }`}>
+                            {product.stock}
+                          </span>
+                          <span className="text-[10px] text-slate-400 block">قطع بالمخزون</span>
+                        </div>
+                      </div>
+
+                      {/* شريط الإجراءات السريعة للموبايل */}
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100/80">
+                        <div>
+                          {isOutOfStock ? (
+                            <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                              نفد
+                            </span>
+                          ) : isLowStock ? (
+                            <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                              منخفض ({product.stock})
+                            </span>
+                          ) : (
+                            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                              كافٍ وسليم
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleQuickAdjust(product.id, -1)}
+                            disabled={product.stock <= 0 || quickAdjustLoadingId === product.id}
+                            className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center disabled:opacity-30 active:scale-95 cursor-pointer"
+                            title="خصم 1"
+                          >
+                            -1
+                          </button>
+                          <button
+                            onClick={() => handleQuickAdjust(product.id, 1)}
+                            disabled={quickAdjustLoadingId === product.id}
+                            className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center active:scale-95 cursor-pointer"
+                            title="إضافة 1"
+                          >
+                            +1
+                          </button>
+                          <button
+                            onClick={() => handleQuickAdjust(product.id, 5)}
+                            disabled={quickAdjustLoadingId === product.id}
+                            className="px-2.5 h-8 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center active:scale-95 cursor-pointer"
+                            title="تزويد سريع بـ 5"
+                          >
+                            +5
+                          </button>
+                          <button
+                            onClick={() => setSelectedProductForRestock(product)}
+                            className="px-3 h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95 cursor-pointer"
+                          >
+                            <PlusCircle className="w-3.5 h-3.5" />
+                            <span>تزويد</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* جدول الشاشات الكبيرة */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-right text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">

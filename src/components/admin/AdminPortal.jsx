@@ -132,30 +132,30 @@ export default function AdminPortal() {
           </div>
         </div>
 
-        {/* أشرطة التبويب الأربعة */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto gap-2 border-t border-slate-800/80 pt-1 pb-1">
+        {/* أشرطة التبويب مع تمرير أفقي سلس على الموبايل */}
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 flex overflow-x-auto gap-1.5 sm:gap-2 border-t border-slate-800/80 pt-1.5 pb-1.5 scrollbar-none touch-pan-x">
           <button
             onClick={() => setCurrentAdminTab('dashboard')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
               currentAdminTab === 'dashboard'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <LayoutDashboard className="w-4 h-4" />
-            <span>لوحة المؤشرات العامة</span>
+            <span>المؤشرات</span>
           </button>
 
           <button
             onClick={() => setCurrentAdminTab('inventory')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
               currentAdminTab === 'inventory'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <Boxes className="w-4 h-4" />
-            <span>تتبع المخزون والواردات</span>
+            <span>المخزون والواردات</span>
             {stockAlertsCount > 0 && (
               <span className="bg-amber-500 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-black animate-pulse">
                 {stockAlertsCount}
@@ -165,26 +165,26 @@ export default function AdminPortal() {
 
           <button
             onClick={() => setCurrentAdminTab('products')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
               currentAdminTab === 'products'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <Package className="w-4 h-4" />
-            <span>كتالوج المنتجات</span>
+            <span>المنتجات</span>
           </button>
 
           <button
             onClick={() => setCurrentAdminTab('orders')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
               currentAdminTab === 'orders'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>طلبات الزبائن</span>
+            <span>الطلبات</span>
             {pendingOrdersCount > 0 && (
               <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">
                 {pendingOrdersCount}
@@ -194,20 +194,20 @@ export default function AdminPortal() {
 
           <button
             onClick={() => setCurrentAdminTab('notifications')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
               currentAdminTab === 'notifications'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <Bell className="w-4 h-4 text-amber-300 animate-pulse" />
-            <span>إشعارات الجوال الفورية</span>
+            <span>إشعارات الموبايل</span>
           </button>
         </div>
       </div>
 
       {/* الحاوية الرئيسية للوحة الإدارة */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {currentAdminTab === 'dashboard' && (
           <AdminDashboard
             onTabChange={setCurrentAdminTab}
