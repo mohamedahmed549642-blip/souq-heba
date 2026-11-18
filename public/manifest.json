@@ -1,0 +1,28 @@
+{
+  "name": "سوق هبة | Souq Heba",
+  "short_name": "سوق هبة",
+  "description": "متجر سوق هبة المعتمد لأحدث الشواحن، الباور بانك، الساعات الذكية، أجهزة العناية وزيت سيناء الطبيعي",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#071629",
+  "theme_color": "#071629",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "electronics", "lifestyle"]
+}

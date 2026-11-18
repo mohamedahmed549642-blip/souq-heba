@@ -77,17 +77,36 @@ export const showOrderPushNotification = (order) => {
       const title = `🛒 طلب شراء جديد #${order.id}!`;
       const body = `العميل: ${order.customer?.name} (${order.customer?.address || 'مصر'})\nالمبلغ المطلوب كاش: ${Number(order.total).toLocaleString('en-US')} ج.م`;
 
-      const notification = new Notification(title, {
+      const notificationOptions = {
         body,
-        icon: '/favicon.ico',
-        tag: order.id,
-        requireInteraction: true
-      });
-
-      notification.onclick = () => {
-        window.focus();
-        notification.close();
+        icon: '/logo.png',
+        badge: '/logo.png',
+        tag: String(order.id),
+        requireInteraction: true,
+        data: { url: '/admin' }
       };
+
+      // Try ServiceWorker notification first (modern mobile PWA standard)
+      if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+        navigator.serviceWorker.ready
+          .then((registration) => {
+            registration.showNotification(title, notificationOptions);
+          })
+          .catch(() => {
+            // Fallback to standard window Notification
+            try {
+              new Notification(title, notificationOptions);
+            } catch {}
+          });
+      } else {
+        try {
+          const notification = new Notification(title, notificationOptions);
+          notification.onclick = () => {
+            window.focus();
+            notification.close();
+          };
+        } catch {}
+      }
     }
   } catch (e) {
     console.warn("Push notification error:", e);
