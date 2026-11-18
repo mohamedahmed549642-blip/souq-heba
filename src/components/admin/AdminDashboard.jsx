@@ -32,9 +32,13 @@ export default function AdminDashboard({ onTabChange, onOpenAddProduct }) {
   const totalProducts = products.length;
   const inStockCount = products.filter(p => p.stock > p.lowStockThreshold).length;
 
-  const totalRevenue = stats ? stats.totalRevenue : orders.reduce((sum, o) => !o.status.includes('ملغي') ? sum + o.total : sum, 0);
-  const totalAssetValue = stats ? stats.totalInventoryAssetValue : products.reduce((sum, p) => sum + (p.stock * (p.costPrice || p.price * 0.5)), 0);
-  const totalRetailValue = stats ? stats.totalRetailPotentialValue : products.reduce((sum, p) => sum + (p.stock * (p.salePrice || p.price)), 0);
+  // Single Source of Truth: derive directly from loaded orders and products
+  // Guarantees that sales total and order counts never disagree or fluctuate
+  const activeOrders = orders.filter(o => !o.status?.includes('ملغي'));
+  const totalRevenue = activeOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+  const pendingOrdersCount = orders.filter(o => o.status === 'قيد الانتظار' || o.status === 'قيد التجهيز').length;
+  const totalAssetValue = products.reduce((sum, p) => sum + ((Number(p.stock) || 0) * (Number(p.costPrice) || Number(p.price) * 0.5)), 0);
+  const totalRetailValue = products.reduce((sum, p) => sum + ((Number(p.stock) || 0) * (Number(p.salePrice) || Number(p.price))), 0);
 
   const lowStockItems = products.filter(p => p.stock > 0 && p.stock <= p.lowStockThreshold);
   const outOfStockItems = products.filter(p => p.stock === 0);
@@ -132,7 +136,7 @@ export default function AdminDashboard({ onTabChange, onOpenAddProduct }) {
             {orders.length}
           </div>
           <span className="text-[11px] text-slate-500 font-bold">
-            {orders.filter(o => o.status === 'قيد الانتظار' || o.status === 'قيد التجهيز').length} طلب قيد التجهيز والشحن
+            {pendingOrdersCount} طلب قيد التجهيز والشحن
           </span>
         </div>
 

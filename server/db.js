@@ -1,12 +1,42 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  deleteDoc,
+  getDoc,
+  query,
+  orderBy
+} from 'firebase/firestore';
 import { DEFAULT_PRODUCTS } from './data/defaultProducts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'store.json');
+
+// Initialize Firebase Cloud Firestore Database
+const firebaseConfig = {
+  apiKey: process.env.VITE_FIREBASE_API_KEY || "AIzaSyBkmyVjSnofyWpAqGUISmwdAyOZmKhuSsw",
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || "souq-heba.firebaseapp.com",
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID || "souq-heba",
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || "souq-heba.firebasestorage.app",
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "629249309572",
+  appId: process.env.VITE_FIREBASE_APP_ID || "1:629249309572:web:85fce5f90bba9e848d7bd1"
+};
+
+let firestoreDb = null;
+try {
+  const firebaseApp = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  firestoreDb = getFirestore(firebaseApp);
+} catch (e) {
+  console.warn("Could not initialize Firestore in backend:", e.message);
+}
 
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -133,6 +163,44 @@ function getInitialData() {
 class StoreDatabase {
   constructor() {
     this.data = this.read();
+    this.lastSync = 0;
+    this.syncFromFirestore();
+  }
+
+  async syncFromFirestore() {
+    if (!firestoreDb) return;
+    try {
+      // 1. Sync Orders from Cloud Firestore
+      const ordersRef = collection(firestoreDb, 'orders');
+      const oSnap = await getDocs(query(ordersRef, orderBy('createdAt', 'desc')));
+      if (!oSnap.empty) {
+        this.data.orders = oSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      }
+
+      // 2. Sync Products from Cloud Firestore
+      const productsRef = collection(firestoreDb, 'products');
+      const pSnap = await getDocs(productsRef);
+      if (!pSnap.empty) {
+        this.data.products = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      }
+
+      // 3. Sync Settings from Cloud Firestore
+      const settingsDoc = await getDoc(doc(firestoreDb, 'settings', 'admin'));
+      if (settingsDoc.exists()) {
+        this.data.settings = { ...this.data.settings, ...settingsDoc.data() };
+      }
+
+      this.lastSync = Date.now();
+      this.write(this.data);
+    } catch (e) {
+      console.warn("Firestore sync warning:", e.message);
+    }
+  }
+
+  checkSync() {
+    if (Date.now() - this.lastSync > 4000) {
+      this.syncFromFirestore().catch(() => {});
+    }
   }
 
   read() {
@@ -160,6 +228,7 @@ class StoreDatabase {
 
   // --- PRODUCTS ---
   getProducts() {
+    this.checkSync();
     return this.data.products;
   }
 
@@ -205,6 +274,9 @@ class StoreDatabase {
     }
 
     this.write(this.data);
+    if (firestoreDb) {
+      setDoc(doc(firestoreDb, 'products', newProduct.id), newProduct).catch(() => {});
+    }
     return newProduct;
   }
 
@@ -245,6 +317,9 @@ class StoreDatabase {
     }
 
     this.write(this.data);
+    if (firestoreDb) {
+      setDoc(doc(firestoreDb, 'products', updated.id), updated).catch(() => {});
+    }
     return updated;
   }
 
@@ -263,6 +338,9 @@ class StoreDatabase {
       reason: "حذف المنتج من الكتالوج بواسطة الإدارة"
     });
     this.write(this.data);
+    if (firestoreDb) {
+      deleteDoc(doc(firestoreDb, 'products', id)).catch(() => {});
+    }
     return true;
   }
 
@@ -291,6 +369,9 @@ class StoreDatabase {
     });
 
     this.write(this.data);
+    if (firestoreDb) {
+      setDoc(doc(firestoreDb, 'products', product.id), product).catch(() => {});
+    }
     return { product, log };
   }
 
@@ -399,14 +480,30 @@ class StoreDatabase {
     }
     this.data.orders.unshift(order);
     this.write(this.data);
+
+    // Sync to Cloud Firestore in background
+    if (firestoreDb) {
+      setDoc(doc(firestoreDb, 'orders', order.id), order).catch(err => {
+        console.warn("Firestore order write warning:", err.message);
+      });
+      for (const item of processedItems) {
+        const prod = this.getProductById(item.id);
+        if (prod) {
+          setDoc(doc(firestoreDb, 'products', prod.id), prod).catch(() => {});
+        }
+      }
+    }
+
     return order;
   }
 
   getOrders() {
+    this.checkSync();
     return this.data.orders || [];
   }
 
   getOrderById(id) {
+    this.checkSync();
     return (this.data.orders || []).find(o => o.id === id || o.trackingNumber === id);
   }
 
@@ -435,15 +532,22 @@ class StoreDatabase {
             newStock: product.stock,
             reason: `إلغاء الطلب وإعادة القطع للمخزون #${order.id}`
           });
+          if (firestoreDb) {
+            setDoc(doc(firestoreDb, 'products', product.id), product).catch(() => {});
+          }
         }
       }
     }
 
     this.write(this.data);
+    if (firestoreDb) {
+      setDoc(doc(firestoreDb, 'orders', order.id), order).catch(() => {});
+    }
     return order;
   }
 
   getStats() {
+    this.checkSync();
     const products = this.data.products || [];
     const orders = this.data.orders || [];
     const logs = this.data.inventoryLogs || [];
@@ -485,6 +589,7 @@ class StoreDatabase {
   }
 
   getSettings() {
+    this.checkSync();
     if (!this.data.settings) {
       this.data.settings = {
         adminPhone: "01000000000",
@@ -501,6 +606,9 @@ class StoreDatabase {
     const current = this.getSettings();
     this.data.settings = { ...current, ...updates };
     this.write(this.data);
+    if (firestoreDb) {
+      setDoc(doc(firestoreDb, 'settings', 'admin'), this.data.settings).catch(() => {});
+    }
     return this.data.settings;
   }
 }
