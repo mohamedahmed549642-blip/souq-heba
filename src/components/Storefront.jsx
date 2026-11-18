@@ -27,14 +27,14 @@ export default function Storefront() {
   } = useShop();
 
   const resetAllFilters = () => {
-    setSelectedCategory('جميع الأقسام');
+    setSelectedCategory('الكل');
     setStockFilter('all');
     setSortBy('featured');
     setSearchQuery('');
   };
 
   const isFiltered =
-    selectedCategory !== 'جميع الأقسام' ||
+    (selectedCategory !== 'الكل' && selectedCategory !== 'جميع الأقسام') ||
     stockFilter !== 'all' ||
     sortBy !== 'featured' ||
     searchQuery.trim().length > 0;
@@ -45,22 +45,35 @@ export default function Storefront() {
       <HeroBanner />
 
       {/* شريط التصنيفات السريع للأجهزة المحمولة والديسكتوب */}
-      <div className="mb-4 sm:mb-6 -mx-3 px-3 sm:mx-0 sm:px-0 overflow-x-auto pb-2 scrollbar-none touch-pan-x">
+      <div id="products-section" className="scroll-mt-24 mb-4 sm:mb-6 -mx-3 px-3 sm:mx-0 sm:px-0 overflow-x-auto pb-2 scrollbar-none touch-pan-x">
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-max">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 ${
-                selectedCategory.toLowerCase() === cat.toLowerCase()
-                  ? 'bg-gradient-to-r from-[#0c2340] to-[#133e7c] text-white shadow-md shadow-blue-900/20 ring-2 ring-orange-500/50'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:border-orange-400 hover:text-orange-600 hover:bg-slate-50'
-              }`}
-            >
-              {cat === 'جميع الأقسام' && <Sparkles className="w-3.5 h-3.5 text-amber-300" />}
-              <span>{cat}</span>
-            </button>
-          ))}
+          {categories.map(cat => {
+            const isSelected = selectedCategory.toLowerCase().trim() === cat.toLowerCase().trim();
+            const isDeals = cat.includes('العروض');
+            const isAll = cat === 'الكل' || cat === 'جميع الأقسام';
+
+            return (
+              <button
+                key={cat}
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  if (stockFilter !== 'all') setStockFilter('all');
+                }}
+                className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 active:scale-95 ${
+                  isSelected
+                    ? isDeals
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/30 ring-2 ring-amber-300'
+                      : 'bg-gradient-to-r from-[#0c2340] to-[#133e7c] text-white shadow-md shadow-blue-900/20 ring-2 ring-orange-500/50'
+                    : isDeals
+                    ? 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100 hover:border-amber-400 font-black'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:border-orange-400 hover:text-orange-600 hover:bg-slate-50'
+                }`}
+              >
+                {isAll && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+                <span>{cat}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -143,7 +156,7 @@ export default function Storefront() {
           </p>
           <button
             onClick={resetAllFilters}
-            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition cursor-pointer"
+            className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs rounded-xl shadow-md shadow-orange-500/25 transition cursor-pointer active:scale-95"
           >
             إلغاء جميع الفلاتر
           </button>

@@ -11,23 +11,28 @@ export default function MobileBottomNav() {
   const {
     cartTotalItems,
     setIsCartOpen,
-    setSelectedCategory
+    setSelectedCategory,
+    selectedCategory,
+    scrollToProducts,
+    showDeals
   } = useShop();
 
   // Scroll to categories section
   const handleScrollToCategories = () => {
-    window.scrollTo({ top: 320, behavior: 'smooth' });
+    scrollToProducts();
   };
 
   const handleScrollToTop = () => {
-    setSelectedCategory('جميع الأقسام');
+    setSelectedCategory('الكل');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleScrollToDeals = () => {
-    // Smooth scroll down to products grid
-    window.scrollTo({ top: 480, behavior: 'smooth' });
+    showDeals();
   };
+
+  const isDealsActive = selectedCategory === '🔥 العروض والتخفيضات';
+  const isHomeActive = selectedCategory === 'الكل' || selectedCategory === 'جميع الأقسام';
 
   return (
     <nav
@@ -39,10 +44,12 @@ export default function MobileBottomNav() {
         {/* المتجر / الرئيسية */}
         <button
           onClick={handleScrollToTop}
-          className="flex flex-col items-center justify-center py-1 text-slate-700 hover:text-orange-600 active:scale-95 transition cursor-pointer"
+          className={`flex flex-col items-center justify-center py-1 active:scale-95 transition cursor-pointer ${
+            isHomeActive ? 'text-orange-600 font-black' : 'text-slate-600 hover:text-orange-600'
+          }`}
         >
           <div className="w-9 h-7 flex items-center justify-center">
-            <Store className="w-5 h-5 text-orange-600" />
+            <Store className={`w-5 h-5 ${isHomeActive ? 'text-orange-600' : 'text-slate-500'}`} />
           </div>
           <span className="text-[10px] font-bold mt-0.5 leading-none">الرئيسية</span>
         </button>
@@ -50,7 +57,7 @@ export default function MobileBottomNav() {
         {/* الأقسام */}
         <button
           onClick={handleScrollToCategories}
-          className="flex flex-col items-center justify-center py-1 text-slate-700 hover:text-orange-600 active:scale-95 transition cursor-pointer"
+          className="flex flex-col items-center justify-center py-1 text-slate-600 hover:text-orange-600 active:scale-95 transition cursor-pointer"
         >
           <div className="w-9 h-7 flex items-center justify-center">
             <Grid className="w-5 h-5 text-[#0c2340]" />
@@ -61,12 +68,15 @@ export default function MobileBottomNav() {
         {/* العروض والتخفيضات */}
         <button
           onClick={handleScrollToDeals}
-          className="flex flex-col items-center justify-center py-1 text-slate-700 hover:text-amber-600 active:scale-95 transition cursor-pointer"
+          className={`relative flex flex-col items-center justify-center py-1 active:scale-95 transition cursor-pointer ${
+            isDealsActive ? 'text-amber-500 font-black' : 'text-slate-600 hover:text-amber-500'
+          }`}
         >
-          <div className="w-9 h-7 flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-amber-500" />
+          <div className="relative w-9 h-7 flex items-center justify-center">
+            <Sparkles className={`w-5 h-5 ${isDealsActive ? 'text-amber-500 animate-bounce' : 'text-amber-500'}`} />
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500" />
           </div>
-          <span className="text-[10px] font-bold mt-0.5 leading-none">العروض</span>
+          <span className="text-[10px] font-bold mt-0.5 leading-none">العروض 🔥</span>
         </button>
 
         {/* سلة المشتريات */}

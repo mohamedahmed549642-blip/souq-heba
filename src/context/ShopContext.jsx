@@ -10,7 +10,8 @@ const ShopContext = createContext();
 export function ShopProvider({ children }) {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([
-    "جميع الأقسام",
+    "الكل",
+    "🔥 العروض والتخفيضات",
     "إلكترونيات وشواحن",
     "ساعات وسماعات ذكية",
     "عناية شخصية وحلاقة",
@@ -34,7 +35,7 @@ export function ShopProvider({ children }) {
 
   // Filters & UI state
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('جميع الأقسام');
+  const [selectedCategory, setSelectedCategory] = useState('الكل');
   const [stockFilter, setStockFilter] = useState('all'); // 'all' | 'in' | 'low' | 'out'
   const [sortBy, setSortBy] = useState('featured'); // 'featured' | 'price-asc' | 'price-desc' | 'stock-asc' | 'stock-desc' | 'name'
 
@@ -513,24 +514,71 @@ export function ShopProvider({ children }) {
     navigate('/admin');
   };
 
+  // Scroll smoothly to products section
+  const scrollToProducts = () => {
+    if (typeof window !== 'undefined') {
+      const el = document.getElementById('products-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 480, behavior: 'smooth' });
+      }
+    }
+  };
+
+  // Show deals and scroll
+  const showDeals = () => {
+    setSelectedCategory('🔥 العروض والتخفيضات');
+    setStockFilter('all');
+    setTimeout(() => {
+      scrollToProducts();
+    }, 50);
+  };
+
+  // Select category and scroll to products
+  const selectCategoryAndScroll = (categoryName) => {
+    setSelectedCategory(categoryName);
+    setTimeout(() => {
+      scrollToProducts();
+    }, 50);
+  };
+
   // Derived filtered & sorted products
   const filteredProducts = products.filter(p => {
-    if (selectedCategory !== 'جميع الأقسام' && p.category.toLowerCase() !== selectedCategory.toLowerCase()) {
-      return false;
+    // 1. Category / Deals filtering
+    const isAll = !selectedCategory || selectedCategory === 'الكل' || selectedCategory === 'جميع الأقسام';
+    if (!isAll) {
+      if (selectedCategory === '🔥 العروض والتخفيضات' || selectedCategory === 'العروض' || selectedCategory === 'العروض والتخفيضات') {
+        if (!p.salePrice || Number(p.salePrice) >= Number(p.price)) {
+          return false;
+        }
+      } else {
+        const prodCat = (p.category || '').toLowerCase().trim();
+        const selCat = selectedCategory.toLowerCase().trim();
+        const catMatch = prodCat === selCat;
+        const partialMatch = selCat.includes(prodCat) || prodCat.includes(selCat);
+        if (!catMatch && !partialMatch) {
+          return false;
+        }
+      }
     }
+
+    // 2. Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       const match =
-        p.name.toLowerCase().includes(q) ||
+        (p.name && p.name.toLowerCase().includes(q)) ||
         (p.nameEn && p.nameEn.toLowerCase().includes(q)) ||
-        p.sku.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
+        (p.sku && p.sku.toLowerCase().includes(q)) ||
+        (p.category && p.category.toLowerCase().includes(q)) ||
         (p.description && p.description.toLowerCase().includes(q));
       if (!match) return false;
     }
-    if (stockFilter === 'in' && p.stock <= p.lowStockThreshold) return false;
-    if (stockFilter === 'low' && (p.stock === 0 || p.stock > p.lowStockThreshold)) return false;
-    if (stockFilter === 'out' && p.stock > 0) return false;
+
+    // 3. Stock filter: 'all' | 'in' | 'low' | 'out'
+    if (stockFilter === 'in' && Number(p.stock) <= 0) return false;
+    if (stockFilter === 'low' && (Number(p.stock) <= 0 || Number(p.stock) > Number(p.lowStockThreshold || 5))) return false;
+    if (stockFilter === 'out' && Number(p.stock) > 0) return false;
 
     return true;
   }).sort((a, b) => {
@@ -574,6 +622,9 @@ export function ShopProvider({ children }) {
         setSearchQuery,
         selectedCategory,
         setSelectedCategory,
+        scrollToProducts,
+        showDeals,
+        selectCategoryAndScroll,
         stockFilter,
         setStockFilter,
         sortBy,

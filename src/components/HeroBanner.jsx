@@ -3,7 +3,7 @@ import { Sparkles, ShieldCheck, Truck, Zap, Tag, MessageCircle, ArrowLeft } from
 import { useShop } from '../context/ShopContext';
 
 export default function HeroBanner() {
-  const { setSelectedCategory } = useShop();
+  const { selectCategoryAndScroll, showDeals } = useShop();
 
   return (
     <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#071629] via-[#0c2340] to-slate-900 text-white shadow-2xl mb-5 sm:mb-8 border border-slate-800" dir="rtl">
@@ -33,11 +33,19 @@ export default function HeroBanner() {
 
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 sm:gap-3">
             <button
-              onClick={() => setSelectedCategory('إلكترونيات وشواحن')}
+              onClick={() => selectCategoryAndScroll('إلكترونيات وشواحن')}
               className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-sm shadow-lg shadow-orange-500/30 transition flex items-center gap-2 cursor-pointer active:scale-95"
             >
               <span>تسوق الإلكترونيات والشواحن</span>
               <ArrowLeft className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={showDeals}
+              className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-white/10 hover:bg-white/20 text-amber-300 font-bold text-xs sm:text-sm border border-amber-300/30 transition flex items-center gap-1.5 cursor-pointer active:scale-95 backdrop-blur-sm"
+            >
+              <Tag className="w-4 h-4" />
+              <span>استكشف عروض الخصم 🔥</span>
             </button>
 
             <a
@@ -104,12 +112,19 @@ export default function HeroBanner() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div
+          onClick={showDeals}
+          className="flex items-center gap-2.5 cursor-pointer hover:bg-white/10 p-1.5 rounded-xl transition"
+          title="اضغط لعرض جميع منتجات الخصومات"
+        >
           <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
             <Tag className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="font-bold text-xs text-white">كود خصم 10% فوري</h4>
+            <h4 className="font-bold text-xs text-white flex items-center gap-1">
+              <span>كود خصم 10% فوري</span>
+              <span className="text-[10px] text-amber-300">🔥</span>
+            </h4>
             <p className="text-[10px] text-slate-400">استخدم قسيمة <span className="text-amber-300 font-black">HEBA10</span> بالسلة.</p>
           </div>
         </div>
