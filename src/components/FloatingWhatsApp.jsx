@@ -11,26 +11,33 @@ export default function FloatingWhatsApp() {
   const defaultMessage = encodeURIComponent('مرحباً سوق هبة، أود الاستفسار عن المنتجات والعروض المتوفرة.');
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${defaultMessage}`;
 
+  // عند وجود منتجات في السلة، نرفع زر الواتساب فوق شريط السلة العائم تماماً لتجنب أي تداخل
+  const bottomPosition = cartTotalItems > 0 ? '88px' : '20px';
+
   return (
-    <a
-      href={whatsappUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="تواصل معنا عبر واتساب"
-      className={`fixed left-4 z-40 flex items-center gap-2 group transition-all duration-300 ${
-        cartTotalItems > 0 ? 'bottom-20 sm:bottom-6' : 'bottom-5 sm:bottom-6'
-      }`}
+    <aside
+      className="fixed left-3 sm:left-6 z-40 flex items-center gap-2 group transition-all duration-300 pointer-events-auto"
+      style={{ bottom: bottomPosition }}
+      dir="rtl"
+      aria-label="زر محادثة واتساب السريع"
     >
-      <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_4px_20px_rgba(16,185,129,0.4)] transition transform hover:scale-110 active:scale-95 cursor-pointer">
-        {/* Subtle Ping Pulse */}
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="تواصل معنا عبر واتساب"
+        className="relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_4px_20px_rgba(16,185,129,0.45)] ring-2 ring-white/80 transition-transform transform hover:scale-110 active:scale-95 cursor-pointer"
+        title="تحدث مع خدمة عملاء سوق هبة واتساب"
+      >
+        {/* تأثير النبض الضوئي اللطيف */}
         <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-30 animate-ping" />
         <MessageCircle className="w-6 h-6 fill-white text-emerald-500" />
-      </div>
+      </a>
 
-      {/* Pill label visible on desktop hover or subtle badge */}
-      <span className="hidden sm:inline-block bg-[#071629]/90 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+      {/* شارة نصية مساعدة تظهر على أجهزة الكمبيوتر */}
+      <span className="hidden sm:inline-block bg-[#071629]/95 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
         تحدث معنا واتساب
       </span>
-    </a>
+    </aside>
   );
 }
