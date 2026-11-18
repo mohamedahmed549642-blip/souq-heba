@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { ShoppingBag, Search, MessageCircle, X, Tag, Check } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
+import { formatCurrency } from '../utils/format';
 
 export default function Navbar() {
   const {
     cartTotalItems,
+    cartSubtotal,
     setIsCartOpen,
     searchQuery,
     setSearchQuery
@@ -200,16 +202,19 @@ export default function Navbar() {
           {/* زر السلة المميز بألوان الهوية */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="relative flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-orange-500/25 transition active:scale-95 cursor-pointer"
+            className="relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-orange-500/25 transition active:scale-95 cursor-pointer"
             aria-label="سلة التسوق"
           >
-            <ShoppingBag className="w-4 h-4" />
+            <ShoppingBag className="w-4 h-4 shrink-0" />
             <span className="hidden sm:inline">سلة المشتريات</span>
-            {cartTotalItems > 0 && (
-              <span className="bg-slate-950 text-white text-[11px] px-2 py-0.5 rounded-full font-black animate-bounce shadow">
-                {cartTotalItems}
+            {cartTotalItems > 0 ? (
+              <span className="flex items-center gap-1 bg-slate-950/85 text-white text-[11px] px-2 py-0.5 rounded-full font-black shadow-sm">
+                <span>{cartTotalItems}</span>
+                <span className="text-[10px] text-amber-300 font-bold hidden xs:inline">
+                  • {formatCurrency(cartSubtotal)}
+                </span>
               </span>
-            )}
+            ) : null}
           </button>
         </div>
       </div>

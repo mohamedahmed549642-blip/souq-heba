@@ -9,7 +9,6 @@ import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import AdminLoginModal from './components/AdminLoginModal';
 import RealtimeOrderToast from './components/RealtimeOrderToast';
-import FloatingCartBar from './components/FloatingCartBar';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 
 function ShopContent() {
@@ -30,14 +29,13 @@ function ShopContent() {
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900 selection:bg-emerald-500 selection:text-white" dir="rtl">
       <Navbar />
 
-      <main className="flex-1 pb-12">
+      <main className="flex-1 pb-6">
         <Storefront />
       </main>
 
       <Footer />
 
-      {/* Dynamic Floating Smart Cart Bar (appears when items added) & Floating WhatsApp Concierge */}
-      <FloatingCartBar />
+      {/* Floating Instant WhatsApp Concierge */}
       <FloatingWhatsApp />
 
       {/* Global Customer Modals & Realtime Alerts */}
