@@ -9,6 +9,7 @@ import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import OrderTrackingModal from './components/OrderTrackingModal';
 import AdminLoginModal from './components/AdminLoginModal';
+import RealtimeOrderToast from './components/RealtimeOrderToast';
 
 function ShopContent() {
   const { isAdminOpen } = useShop();
@@ -33,6 +34,7 @@ function ShopContent() {
       <CheckoutModal />
       <OrderTrackingModal />
       <AdminLoginModal />
+      <RealtimeOrderToast />
     </div>
   );
 }

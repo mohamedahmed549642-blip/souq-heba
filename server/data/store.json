@@ -9,7 +9,7 @@
       "price": 1450,
       "salePrice": 1250,
       "costPrice": 650,
-      "stock": 16,
+      "stock": 15,
       "lowStockThreshold": 5,
       "rating": 4.9,
       "reviewsCount": 42,
@@ -183,6 +183,36 @@
   ],
   "orders": [
     {
+      "id": "ORD-8347",
+      "trackingNumber": "SH-2026-9497",
+      "customer": {
+        "name": "أحمد محمود",
+        "phone": "01012345678",
+        "governorate": "القاهرة",
+        "city": "مدينة نصر",
+        "address": "شارع عباس العقاد، عمارة 15"
+      },
+      "items": [
+        {
+          "id": "prod-1",
+          "sku": "OUD-ROYAL-01",
+          "name": "عطر عود الماجد الملكي الفاخر",
+          "price": 1250,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80",
+          "lineTotal": 1250
+        }
+      ],
+      "subtotal": 1250,
+      "discount": 0,
+      "shipping": 45,
+      "total": 1295,
+      "paymentMethod": "الدفع عند الاستلام نقداً (كاش)",
+      "status": "قيد الانتظار",
+      "notes": "برجاء الاتصال قبل الوصول",
+      "createdAt": "2026-11-18T15:22:08.141Z"
+    },
+    {
       "id": "ORD-1308",
       "trackingNumber": "SH-2026-9004",
       "customer": {
@@ -277,6 +307,18 @@
   ],
   "inventoryLogs": [
     {
+      "id": "log-1795015328141-274",
+      "productId": "prod-1",
+      "productName": "عطر عود الماجد الملكي الفاخر",
+      "sku": "OUD-ROYAL-01",
+      "type": "بيع",
+      "change": -1,
+      "previousStock": 16,
+      "newStock": 15,
+      "reason": "طلب شراء جديد #ORD-8347 (أحمد محمود)",
+      "timestamp": "2026-11-18T15:22:08.141Z"
+    },
+    {
       "id": "log-1795009654045-734",
       "productId": "prod-1",
       "productName": "عطر عود الماجد الملكي الفاخر",
@@ -324,5 +366,12 @@
       "reason": "نفاد الكمية بالكامل في عروض التخفيضات",
       "timestamp": "2026-11-17T17:46:54.404Z"
     }
-  ]
+  ],
+  "settings": {
+    "adminPhone": "01000000000",
+    "telegramBotToken": "",
+    "telegramChatId": "",
+    "notifyOnNewOrder": true,
+    "enableSoundAlerts": true
+  }
 }

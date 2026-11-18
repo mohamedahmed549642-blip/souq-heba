@@ -11,7 +11,9 @@ import {
   Clock,
   Plus,
   RotateCcw,
-  Boxes
+  Boxes,
+  Bell,
+  Smartphone
 } from 'lucide-react';
 import { useShop } from '../../context/ShopContext';
 import { formatCurrency } from '../../utils/format';
@@ -215,6 +217,35 @@ export default function AdminDashboard({ onTabChange, onOpenAddProduct }) {
         >
           <RotateCcw className="w-3.5 h-3.5" />
           <span>إعادة تعيين البيانات الافتراضية</span>
+        </button>
+      </div>
+
+      {/* بطاقة التنبيهات الفورية على الموبايل */}
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white p-5 rounded-2xl shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shrink-0">
+            <Smartphone className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-black text-sm sm:text-base">تنبيهات الموبايل اللحظية للطلبات الجديدة</h3>
+              <span className="bg-emerald-300 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                <Bell className="w-2.5 h-2.5" /> تنبيه فوري
+              </span>
+            </div>
+            <p className="text-xs text-white/90 mt-1 max-w-xl">
+              تصلك رنة صوتية واهتزاز وإشعار مباشر على هاتفك بمجرد إتمام أي عميل لطلبه داخل محافظات مصر، بالإضافة إلى إشعارات بوت تليجرام الفورية.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => onTabChange('notifications')}
+          className="px-4 py-2.5 bg-white text-emerald-800 hover:bg-emerald-50 text-xs font-black rounded-xl shadow-sm transition flex items-center gap-2 shrink-0 cursor-pointer self-stretch md:self-auto justify-center"
+        >
+          <Bell className="w-4 h-4 text-emerald-600" />
+          <span>إعدادات وتجربة إشعار الموبايل</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
         </button>
       </div>
 

@@ -119,7 +119,14 @@ function getInitialData() {
         reason: "نفاد الكمية بالكامل في عروض التخفيضات",
         timestamp: new Date(Date.now() - 3600000 * 20).toISOString()
       }
-    ]
+    ],
+    settings: {
+      adminPhone: "01000000000",
+      telegramBotToken: "",
+      telegramChatId: "",
+      notifyOnNewOrder: true,
+      enableSoundAlerts: true
+    }
   };
 }
 
@@ -475,6 +482,26 @@ class StoreDatabase {
     const initial = getInitialData();
     this.write(initial);
     return initial;
+  }
+
+  getSettings() {
+    if (!this.data.settings) {
+      this.data.settings = {
+        adminPhone: "01000000000",
+        telegramBotToken: "",
+        telegramChatId: "",
+        notifyOnNewOrder: true,
+        enableSoundAlerts: true
+      };
+    }
+    return this.data.settings;
+  }
+
+  updateSettings(updates) {
+    const current = this.getSettings();
+    this.data.settings = { ...current, ...updates };
+    this.write(this.data);
+    return this.data.settings;
   }
 }
 

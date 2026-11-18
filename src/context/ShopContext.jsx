@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import {
+  playOrderNotificationSound,
+  showOrderPushNotification,
+  requestPushPermission
+} from '../utils/notifications';
 
 const ShopContext = createContext();
 
@@ -49,6 +54,24 @@ export function ShopProvider({ children }) {
   const [currentAdminTab, setCurrentAdminTab] = useState('dashboard'); // 'dashboard' | 'inventory' | 'products' | 'orders'
   const [selectedProductForModal, setSelectedProductForModal] = useState(null);
 
+  // Real-Time Mobile & Push Notifications State
+  const [adminSettings, setAdminSettings] = useState({
+    adminPhone: '01000000000',
+    telegramBotToken: '',
+    telegramChatId: '',
+    notifyOnNewOrder: true,
+    enableSoundAlerts: true
+  });
+  const [realtimeOrderAlert, setRealtimeOrderAlert] = useState(null);
+  const [pushPermission, setPushPermission] = useState(() => {
+    return typeof window !== 'undefined' && 'Notification' in window
+      ? Notification.permission
+      : 'unsupported';
+  });
+
+  const knownOrderIdsRef = useRef(new Set());
+  const initialLoadDoneRef = useRef(false);
+
   // Save cart changes to localStorage
   useEffect(() => {
     try {
@@ -70,15 +93,83 @@ export function ShopProvider({ children }) {
     }
   };
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (isPolling = false) => {
     try {
       const res = await fetch('/api/orders');
       if (!res.ok) throw new Error('فشل جلب الطلبات');
       const data = await res.json();
-      setOrders(data.orders || []);
+      const fetchedOrders = data.orders || [];
+      setOrders(fetchedOrders);
+
+      // Real-time detection of new incoming orders
+      if (initialLoadDoneRef.current && isPolling) {
+        const newlyArrived = fetchedOrders.filter(o => !knownOrderIdsRef.current.has(o.id));
+        if (newlyArrived.length > 0) {
+          const newest = newlyArrived[0];
+          setRealtimeOrderAlert(newest);
+          showOrderPushNotification(newest);
+          newlyArrived.forEach(o => knownOrderIdsRef.current.add(o.id));
+        }
+      } else {
+        fetchedOrders.forEach(o => knownOrderIdsRef.current.add(o.id));
+        initialLoadDoneRef.current = true;
+      }
     } catch (err) {
       console.warn("API orders error", err);
     }
+  };
+
+  const fetchAdminSettings = async () => {
+    try {
+      const res = await fetch('/api/admin/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.settings) setAdminSettings(data.settings);
+      }
+    } catch (err) {
+      console.warn("Admin settings fetch error:", err);
+    }
+  };
+
+  const updateAdminSettings = async (updates) => {
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      const data = await res.json();
+      if (data.settings) setAdminSettings(data.settings);
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const testAdminNotification = async (customConfig) => {
+    try {
+      const res = await fetch('/api/admin/test-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customConfig || adminSettings)
+      });
+      return await res.json();
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const enablePushNotifications = async () => {
+    const res = await requestPushPermission();
+    setPushPermission(res);
+    if (res === 'granted') {
+      playOrderNotificationSound();
+    }
+    return res;
+  };
+
+  const dismissRealtimeOrderAlert = () => {
+    setRealtimeOrderAlert(null);
   };
 
   const fetchStats = async () => {
@@ -116,6 +207,15 @@ export function ShopProvider({ children }) {
 
   useEffect(() => {
     refreshAll();
+    fetchAdminSettings();
+
+    // Real-time polling every 4 seconds to listen for incoming orders from anywhere
+    const pollInterval = setInterval(() => {
+      fetchOrders(true);
+      fetchStats();
+    }, 4000);
+
+    return () => clearInterval(pollInterval);
   }, []);
 
   // --- CART OPERATIONS ---
@@ -421,7 +521,14 @@ export function ShopProvider({ children }) {
         adjustStock,
         updateOrderStatus,
         resetDemoData,
-        refreshAll
+        refreshAll,
+        adminSettings,
+        updateAdminSettings,
+        testAdminNotification,
+        realtimeOrderAlert,
+        dismissRealtimeOrderAlert,
+        pushPermission,
+        enablePushNotifications
       }}
     >
       {children}

@@ -5,6 +5,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { db } from './db.js';
 import { CATEGORIES } from './data/defaultProducts.js';
+import { sendAdminOrderNotifications } from './notifications.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -224,13 +225,71 @@ app.get('/api/orders/:id', (req, res) => {
   res.json({ success: true, order });
 });
 
-// POST /api/orders (Customer checkout)
-app.post('/api/orders', (req, res) => {
+// POST /api/orders (Customer checkout with Real-Time Admin Notifications)
+app.post('/api/orders', async (req, res) => {
   try {
     const order = db.createOrder(req.body);
+
+    // Asynchronously dispatch mobile notifications to admin (Telegram / Push)
+    try {
+      const settings = db.getSettings();
+      sendAdminOrderNotifications(order, settings).catch(err => {
+        console.warn("Mobile notification background dispatch warning:", err);
+      });
+    } catch (notifErr) {
+      console.warn("Could not dispatch mobile notification:", notifErr);
+    }
+
     res.status(201).json({ success: true, order });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// --- ADMIN SETTINGS & REAL-TIME MOBILE NOTIFICATION CONFIG ---
+// GET /api/admin/settings
+app.get('/api/admin/settings', (req, res) => {
+  const settings = db.getSettings();
+  res.json({ success: true, settings });
+});
+
+// POST /api/admin/settings
+app.post('/api/admin/settings', (req, res) => {
+  const settings = db.updateSettings(req.body);
+  res.json({ success: true, settings, message: 'تم حفظ إعدادات إشعارات الإدارة بنجاح' });
+});
+
+// POST /api/admin/test-notification
+app.post('/api/admin/test-notification', async (req, res) => {
+  try {
+    const settings = db.getSettings();
+    const testOrder = {
+      id: "ORD-TEST-" + Math.floor(1000 + Math.random() * 9000),
+      trackingNumber: "SH-2026-TEST",
+      customer: {
+        name: "تجربة إشعار الإدارة",
+        phone: settings.adminPhone || "01000000000",
+        address: "القاهرة، جمهورية مصر العربية"
+      },
+      items: [
+        { name: "عطر عود الماجد الملكي الفاخر (اختبار)", quantity: 1, price: 1250 }
+      ],
+      total: 1250,
+      shipping: 0,
+      paymentMethod: "الدفع عند الاستلام نقداً (كاش)",
+      notes: "هذا إشعار تجريبي لاختبار وصول التنبيهات اللحظية لهاتف المشرف."
+    };
+
+    const results = await sendAdminOrderNotifications(testOrder, req.body || settings);
+    res.json({
+      success: true,
+      results,
+      message: results.telegram?.ok
+        ? "تم إرسال إشعار تجريبي إلى هاتفك عبر تيليجرام بنجاح! 🚀"
+        : "تم فحص إعدادات الإشعارات بنجاح."
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

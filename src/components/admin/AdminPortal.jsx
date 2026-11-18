@@ -9,13 +9,15 @@ import {
   Plus,
   RefreshCw,
   LogOut,
-  Lock
+  Lock,
+  Bell
 } from 'lucide-react';
 import { useShop } from '../../context/ShopContext';
 import AdminDashboard from './AdminDashboard';
 import AdminInventory from './AdminInventory';
 import AdminProducts from './AdminProducts';
 import AdminOrders from './AdminOrders';
+import AdminNotificationSettings from './AdminNotificationSettings';
 
 export default function AdminPortal() {
   const {
@@ -189,6 +191,18 @@ export default function AdminPortal() {
               </span>
             )}
           </button>
+
+          <button
+            onClick={() => setCurrentAdminTab('notifications')}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              currentAdminTab === 'notifications'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Bell className="w-4 h-4 text-amber-300 animate-pulse" />
+            <span>إشعارات الجوال الفورية</span>
+          </button>
         </div>
       </div>
 
@@ -217,6 +231,10 @@ export default function AdminPortal() {
 
         {currentAdminTab === 'orders' && (
           <AdminOrders />
+        )}
+
+        {currentAdminTab === 'notifications' && (
+          <AdminNotificationSettings />
         )}
       </main>
     </div>
