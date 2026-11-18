@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Sparkles,
-  SlidersHorizontal,
   ArrowUpDown,
   ShoppingBag,
   RefreshCw
@@ -91,28 +90,10 @@ export default function Storefront() {
 
         {/* قوائم التصفية والفرز */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          {/* فلتر توفر المخزون */}
-          <div className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-1.5 bg-slate-50 border border-slate-200 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs">
-            <div className="flex items-center gap-1 text-slate-500 font-bold shrink-0">
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>المخزون:</span>
-            </div>
-            <select
-              value={stockFilter}
-              onChange={(e) => setStockFilter(e.target.value)}
-              className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer text-[11px] sm:text-xs"
-            >
-              <option value="all">الكل</option>
-              <option value="in">المتوفر فقط</option>
-              <option value="low">قارب على النفاد</option>
-              <option value="out">نفد من المخزون</option>
-            </select>
-          </div>
-
           {/* الترتيب */}
-          <div className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-1.5 bg-slate-50 border border-slate-200 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs">
+          <div className="flex-1 sm:flex-none flex items-center justify-between sm:justify-start gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-[11px] sm:text-xs">
             <div className="flex items-center gap-1 text-slate-500 font-bold shrink-0">
-              <ArrowUpDown className="w-3.5 h-3.5" />
+              <ArrowUpDown className="w-3.5 h-3.5 text-orange-500" />
               <span>الترتيب:</span>
             </div>
             <select
