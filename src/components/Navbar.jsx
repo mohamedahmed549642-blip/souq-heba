@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Search, ShieldCheck, Truck, Store, X, Lock, LogOut } from 'lucide-react';
+import { ShoppingBag, Search, Store, X, Lock, LogOut } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 export default function Navbar() {
@@ -13,7 +13,6 @@ export default function Navbar() {
     isAdminAuthenticated,
     openAdminPortal,
     adminLogout,
-    setIsTrackingOpen,
     lowStockCount,
     outOfStockCount
   } = useShop();
@@ -32,15 +31,7 @@ export default function Navbar() {
             <span className="hidden sm:inline">✨ توصيل سريع ومجاني للطلبات فوق 1,000 ج.م! استخدم كود <strong className="text-amber-300 font-extrabold">HEBA10</strong> لخصم 10%</span>
             <span className="sm:hidden">✨ كود خصم 10%: <strong className="text-amber-300">HEBA10</strong></span>
           </div>
-          <div className="flex items-center gap-4 text-emerald-100">
-            <button
-              onClick={() => setIsTrackingOpen(true)}
-              className="hover:text-white transition flex items-center gap-1.5 cursor-pointer font-bold"
-            >
-              <Truck className="w-3.5 h-3.5" />
-              <span>تتبع طلبي</span>
-            </button>
-            <span className="text-emerald-500">|</span>
+          <div className="flex items-center gap-3 text-emerald-100">
             <span className="font-bold text-amber-300">سوق هبة الأصيل</span>
           </div>
         </div>

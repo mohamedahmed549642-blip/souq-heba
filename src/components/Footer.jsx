@@ -3,7 +3,7 @@ import { Store, ShieldCheck, Truck, RotateCcw, Lock } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 export default function Footer() {
-  const { openAdminPortal, setIsTrackingOpen, setSelectedCategory } = useShop();
+  const { openAdminPortal, setSelectedCategory } = useShop();
 
   return (
     <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800 mt-16" dir="rtl">
@@ -110,14 +110,9 @@ export default function Footer() {
         <div>
           <h4 className="font-bold text-white text-sm mb-3">خدمة العملاء</h4>
           <ul className="space-y-2">
-            <li>
-              <button onClick={() => setIsTrackingOpen(true)} className="hover:text-emerald-400 transition cursor-pointer">
-                تتبع مسار شحنتي
-              </button>
-            </li>
-            <li><span className="hover:text-white cursor-pointer">سياسة الشحن والتوصيل</span></li>
-            <li><span className="hover:text-white cursor-pointer">الاستبدال والاسترجاع</span></li>
-            <li><span className="hover:text-white cursor-pointer">خدمة العملاء واتساب: 4567 123 50 971+</span></li>
+            <li><span className="hover:text-white cursor-pointer">سياسة الشحن والتوصيل لكافة محافظات مصر</span></li>
+            <li><span className="hover:text-white cursor-pointer">الدفع نقداً عند الاستلام (كاش فقط)</span></li>
+            <li><span className="hover:text-white cursor-pointer">الاستبدال والاسترجاع خلال 14 يوماً</span></li>
           </ul>
         </div>
 

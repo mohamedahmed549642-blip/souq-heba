@@ -6,7 +6,7 @@ import { EGYPT_GOVERNORATES } from '../data/egyptGovernorates';
 import { formatCurrency } from '../utils/format';
 
 export default function CheckoutModal() {
-  const { isCheckoutOpen, setIsCheckoutOpen, cart, placeOrder, setIsTrackingOpen } = useShop();
+  const { isCheckoutOpen, setIsCheckoutOpen, cart, placeOrder } = useShop();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -196,14 +196,11 @@ export default function CheckoutModal() {
               {/* أزرار الإجراءات */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
-                  onClick={() => {
-                    handleClose();
-                    setIsTrackingOpen(true);
-                  }}
+                  onClick={handleClose}
                   className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition cursor-pointer"
                 >
-                  <Truck className="w-4 h-4" />
-                  <span>تتبع حالة هذا الطلب مباشرة</span>
+                  <CheckCircle className="w-4 h-4" />
+                  <span>العودة للمتجر ومتابعة التسوق</span>
                 </button>
                 <button
                   onClick={() => window.print()}

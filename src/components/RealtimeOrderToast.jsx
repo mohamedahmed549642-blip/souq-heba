@@ -9,8 +9,7 @@ export default function RealtimeOrderToast() {
     dismissRealtimeOrderAlert,
     isAdminAuthenticated,
     setIsAdminOpen,
-    setCurrentAdminTab,
-    setIsTrackingOpen
+    setCurrentAdminTab
   } = useShop();
 
   if (!realtimeOrderAlert) return null;
@@ -19,8 +18,6 @@ export default function RealtimeOrderToast() {
     if (isAdminAuthenticated) {
       setIsAdminOpen(true);
       setCurrentAdminTab('orders');
-    } else {
-      setIsTrackingOpen(true);
     }
     dismissRealtimeOrderAlert();
   };

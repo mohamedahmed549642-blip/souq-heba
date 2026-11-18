@@ -17,7 +17,6 @@ export default function MobileBottomNav() {
   const {
     cartTotalItems,
     setIsCartOpen,
-    setIsTrackingOpen,
     isAdminOpen,
     setIsAdminOpen,
     openAdminPortal,
@@ -49,7 +48,7 @@ export default function MobileBottomNav() {
     >
       {!isAdminOpen ? (
         /* --- شريط المتجر للزبائن --- */
-        <div className="grid grid-cols-5 items-center text-center">
+        <div className="grid grid-cols-4 items-center text-center">
           {/* المتجر / الرئيسية */}
           <button
             onClick={handleScrollToTop}
@@ -70,17 +69,6 @@ export default function MobileBottomNav() {
               <Grid className="w-5 h-5 text-slate-500" />
             </div>
             <span className="text-[10px] font-bold mt-0.5 leading-none">الأقسام</span>
-          </button>
-
-          {/* تتبع طلبي */}
-          <button
-            onClick={() => setIsTrackingOpen(true)}
-            className="flex flex-col items-center justify-center py-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition cursor-pointer"
-          >
-            <div className="w-9 h-7 flex items-center justify-center">
-              <Truck className="w-5 h-5 text-blue-600" />
-            </div>
-            <span className="text-[10px] font-bold mt-0.5 leading-none">تتبع طلبي</span>
           </button>
 
           {/* السلة */}

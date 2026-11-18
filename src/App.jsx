@@ -7,7 +7,6 @@ import AdminPortal from './components/admin/AdminPortal';
 import ProductModal from './components/ProductModal';
 import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
-import OrderTrackingModal from './components/OrderTrackingModal';
 import AdminLoginModal from './components/AdminLoginModal';
 import RealtimeOrderToast from './components/RealtimeOrderToast';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -36,7 +35,6 @@ function ShopContent() {
       <ProductModal />
       <CartDrawer />
       <CheckoutModal />
-      <OrderTrackingModal />
       <AdminLoginModal />
       <RealtimeOrderToast />
     </div>
