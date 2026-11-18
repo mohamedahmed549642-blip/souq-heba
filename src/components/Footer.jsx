@@ -1,9 +1,9 @@
 import React from 'react';
-import { Store, ShieldCheck, Truck, RotateCcw, Lock } from 'lucide-react';
+import { Store, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 export default function Footer() {
-  const { openAdminPortal, setSelectedCategory } = useShop();
+  const { setSelectedCategory } = useShop();
 
   return (
     <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800 mt-16" dir="rtl">
@@ -117,17 +117,23 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-bold text-white text-sm mb-3">إدارة المتجر والمخزون</h4>
-          <p className="text-xs text-slate-400 mb-3">
-            منطقة مخصصة للمشرفين لمتابعة حركة المخزون، تزويد المنتجات ومعالجة طلبات العملاء (محمية بكلمة مرور).
+          <h4 className="font-bold text-white text-sm mb-3">الدعم والمساعدة</h4>
+          <p className="text-xs text-slate-400 mb-3 leading-relaxed">
+            فريق خدمة عملاء سوق هبة في خدمتكم يومياً للرد على أي استفسار وتأكيد مواعيد الشحن.
           </p>
-          <button
-            onClick={openAdminPortal}
-            className="w-full py-2.5 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-bold rounded-xl border border-emerald-500/30 transition flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>تسجيل دخول الإدارة والمخزون</span>
-          </button>
+          <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 space-y-2">
+            <div className="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5">
+              <span>💬 خدمة العملاء عبر الواتساب:</span>
+            </div>
+            <a
+              href="https://wa.me/201000000000"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg shadow transition"
+            >
+              تواصل معنا واتساب مباشرة
+            </a>
+          </div>
         </div>
       </div>
     </footer>

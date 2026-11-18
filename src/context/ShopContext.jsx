@@ -38,6 +38,29 @@ export function ShopProvider({ children }) {
   const [stockFilter, setStockFilter] = useState('all'); // 'all' | 'in' | 'low' | 'out'
   const [sortBy, setSortBy] = useState('featured'); // 'featured' | 'price-asc' | 'price-desc' | 'stock-asc' | 'stock-desc' | 'name'
 
+  // Routing & URL-based views (/ vs /admin)
+  const [currentPath, setCurrentPath] = useState(() => {
+    return typeof window !== 'undefined' ? window.location.pathname : '/';
+  });
+
+  const navigate = (path) => {
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', path);
+      setCurrentPath(path);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const isAdminRoute = currentPath.startsWith('/admin');
+
   // Modals & Panels
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -470,6 +493,7 @@ export function ShopProvider({ children }) {
       setIsAdminAuthenticated(true);
       setIsAdminLoginModalOpen(false);
       setIsAdminOpen(true);
+      navigate('/admin');
       return true;
     } catch (err) {
       throw err;
@@ -482,14 +506,11 @@ export function ShopProvider({ children }) {
     } catch {}
     setIsAdminAuthenticated(false);
     setIsAdminOpen(false);
+    navigate('/');
   };
 
   const openAdminPortal = () => {
-    if (isAdminAuthenticated) {
-      setIsAdminOpen(true);
-    } else {
-      setIsAdminLoginModalOpen(true);
-    }
+    navigate('/admin');
   };
 
   // Derived filtered & sorted products
@@ -557,6 +578,9 @@ export function ShopProvider({ children }) {
         setStockFilter,
         sortBy,
         setSortBy,
+        currentPath,
+        navigate,
+        isAdminRoute,
         isCartOpen,
         setIsCartOpen,
         isCheckoutOpen,

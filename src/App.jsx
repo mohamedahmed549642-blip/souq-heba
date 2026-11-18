@@ -12,30 +12,36 @@ import RealtimeOrderToast from './components/RealtimeOrderToast';
 import MobileBottomNav from './components/MobileBottomNav';
 
 function ShopContent() {
-  const { isAdminOpen } = useShop();
+  const { isAdminRoute } = useShop();
 
+  // Dedicated Secret Admin Route (/admin)
+  if (isAdminRoute) {
+    return (
+      <div className="min-h-screen bg-slate-950 font-sans text-slate-100 selection:bg-emerald-500 selection:text-white" dir="rtl">
+        <AdminPortal />
+        <RealtimeOrderToast />
+      </div>
+    );
+  }
+
+  // 100% Dedicated Clean Customer Storefront (/)
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900 selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900 selection:bg-emerald-500 selection:text-white" dir="rtl">
       <Navbar />
 
       <main className="flex-1 pb-20 md:pb-0">
-        {isAdminOpen ? (
-          <AdminPortal />
-        ) : (
-          <Storefront />
-        )}
+        <Storefront />
       </main>
 
-      {!isAdminOpen && <Footer />}
+      <Footer />
 
-      {/* Modern App-Style Mobile Bottom Navigation Bar */}
+      {/* Modern App-Style Mobile Bottom Navigation Bar for Customers */}
       <MobileBottomNav />
 
-      {/* Global Interactive Modals */}
+      {/* Global Customer Modals & Realtime Alerts */}
       <ProductModal />
       <CartDrawer />
       <CheckoutModal />
-      <AdminLoginModal />
       <RealtimeOrderToast />
     </div>
   );

@@ -8,7 +8,7 @@ export default function RealtimeOrderToast() {
     realtimeOrderAlert,
     dismissRealtimeOrderAlert,
     isAdminAuthenticated,
-    setIsAdminOpen,
+    navigate,
     setCurrentAdminTab
   } = useShop();
 
@@ -16,7 +16,7 @@ export default function RealtimeOrderToast() {
 
   const handleOpenOrder = () => {
     if (isAdminAuthenticated) {
-      setIsAdminOpen(true);
+      navigate('/admin');
       setCurrentAdminTab('orders');
     }
     dismissRealtimeOrderAlert();
