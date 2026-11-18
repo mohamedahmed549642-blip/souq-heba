@@ -1,5 +1,5 @@
 import React from 'react';
-import { Store, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { Store, ShieldCheck, Truck, RotateCcw, PackageCheck } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 export default function Footer() {
@@ -42,7 +42,7 @@ export default function Footer() {
 
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
-              <Lock className="w-5 h-5" />
+              <PackageCheck className="w-5 h-5" />
             </div>
             <div>
               <h5 className="font-bold text-white text-sm">حجز فوري من المخزون</h5>
