@@ -17,6 +17,7 @@ import {
 import { useShop } from '../../context/ShopContext';
 import { PRESET_IMAGES } from '../../data/presetImages';
 import { formatCurrency } from '../../utils/format';
+import { uploadImageToFirebase } from '../../firebase';
 
 export default function AdminProducts({ isAddModalOpen, setIsAddModalOpen }) {
   const { products, addProduct, updateProduct, deleteProduct } = useShop();
@@ -124,22 +125,32 @@ export default function AdminProducts({ isAddModalOpen, setIsAddModalOpen }) {
       const base64Data = event.target.result;
 
       try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            image: base64Data,
-            filename: file.name
-          })
-        });
+        let uploadedUrl = null;
 
-        const data = await res.json();
-        if (data.success) {
-          setFormData(prev => ({ ...prev, image: data.url }));
-        } else {
-          // fallback to base64 data url directly
-          setFormData(prev => ({ ...prev, image: base64Data }));
+        // 1. Try uploading to Firebase Storage first
+        try {
+          uploadedUrl = await uploadImageToFirebase(base64Data, file.name);
+        } catch (firebaseErr) {
+          console.warn('Firebase Storage attempt skipped:', firebaseErr);
         }
+
+        // 2. Fall back to local server upload API if Firebase Storage not active
+        if (!uploadedUrl) {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image: base64Data,
+              filename: file.name
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            uploadedUrl = data.url;
+          }
+        }
+
+        setFormData(prev => ({ ...prev, image: uploadedUrl || base64Data }));
       } catch (err) {
         console.warn("Upload API failed, using client data URL fallback:", err);
         setFormData(prev => ({ ...prev, image: base64Data }));
