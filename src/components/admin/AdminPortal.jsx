@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Boxes,
@@ -14,7 +14,11 @@ import {
   Eye,
   EyeOff,
   KeyRound,
-  Store
+  Store,
+  Smartphone,
+  Download,
+  X,
+  Share2
 } from 'lucide-react';
 import { useShop } from '../../context/ShopContext';
 import AdminDashboard from './AdminDashboard';
@@ -43,6 +47,40 @@ export default function AdminPortal() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  // Progressive Web App (PWA) Install Prompt States
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Detect if already installed / running in standalone window
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      setIsInstalled(true);
+    }
+
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        setIsInstalled(true);
+        setDeferredPrompt(null);
+      }
+    } else {
+      setShowInstallModal(true);
+    }
+  };
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -135,6 +173,18 @@ export default function AdminPortal() {
               </code>
             </div>
 
+            {/* زر تثبيت تطبيق الإدارة المباشر */}
+            {!isInstalled && (
+              <button
+                type="button"
+                onClick={handleInstallPWA}
+                className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-amber-300 hover:text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-sm border border-slate-700 active:scale-95"
+              >
+                <Smartphone className="w-4 h-4 text-orange-400" />
+                <span>تثبيت تطبيق الإدارة على هاتفك 📲</span>
+              </button>
+            )}
+
             {/* العودة إلى المتجر */}
             <button
               type="button"
@@ -184,6 +234,19 @@ export default function AdminPortal() {
 
           {/* أزرار الإجراءات العلوية */}
           <div className="flex items-center gap-2">
+            {!isInstalled && (
+              <button
+                type="button"
+                onClick={handleInstallPWA}
+                className="px-3 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs shadow-md shadow-orange-500/25 flex items-center gap-1.5 transition cursor-pointer active:scale-95 shrink-0"
+                title="تثبيت لوحة الإدارة كتطبيق مستقل على هاتفك"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">تثبيت تطبيق الإدارة 📲</span>
+                <span className="sm:hidden">تثبيت 📲</span>
+              </button>
+            )}
+
             <button
               onClick={refreshAll}
               disabled={loading}
@@ -385,6 +448,61 @@ export default function AdminPortal() {
           </button>
         </div>
       </nav>
+
+      {/* نافذة إرشادية لتثبيت التطبيق على الهواتف والحواسيب */}
+      {showInstallModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 text-right" dir="rtl">
+          <div className="bg-slate-900 border border-slate-700 text-white rounded-3xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold">
+                  <Smartphone className="w-5 h-5 text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-white">تثبيت تطبيق إدارة سوق هبة</h3>
+                  <span className="text-[10px] text-slate-400">تطبيق مستقل لشاشة هاتفك الرئيسية</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowInstallModal(false)}
+                className="text-slate-400 hover:text-white p-1 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-3 text-xs text-slate-300">
+              <div className="bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+                <span className="font-black text-emerald-400 block mb-1">🤖 أجهزة أندرويد والكمبيوتر:</span>
+                <p className="leading-relaxed">
+                  اضغط على زر خيارات المتصفح (الثلاث نقاط <strong className="font-mono text-white">⋮</strong> بأعلى المتصفح)، ثم اختر <strong>"تثبيت التطبيق"</strong> (Install App) أو إضافة إلى الشاشة الرئيسية.
+                </p>
+              </div>
+
+              <div className="bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+                <span className="font-black text-sky-400 block mb-1">🍏 أجهزة آيفون iPhone (متصفح Safari):</span>
+                <p className="leading-relaxed">
+                  1. اضغط على أيقونة المشاركة (Share <Share2 className="w-3.5 h-3.5 inline mx-0.5 text-sky-400" />) أسفل الشاشة.
+                  <br />
+                  2. مرر للأسفل واختر <strong>"إضافة إلى الصفحة الرئيسية"</strong> (Add to Home Screen ➕).
+                </p>
+                <p className="text-[11px] text-amber-300 font-bold mt-1.5">
+                  ✓ سيفتح التطبيق فورياً على شاشة كاملة بدون شريط المتصفح، مع إشعارات واهتزاز فور ورود أي طلب!
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowInstallModal(false)}
+              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl transition cursor-pointer"
+            >
+              فهمت، شكراً
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

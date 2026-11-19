@@ -1,12 +1,12 @@
 {
-  "name": "سوق هبة | Souq Heba",
-  "short_name": "سوق هبة",
-  "description": "متجر سوق هبة المعتمد لأحدث الشواحن، الباور بانك، الساعات الذكية، أجهزة العناية وزيت سيناء الطبيعي",
-  "start_url": "/",
+  "name": "إدارة سوق هبة | Souq Heba Admin",
+  "short_name": "إدارة هبة",
+  "description": "لوحة تحكم إدارة متجر سوق هبة ومتابعة الطلبات الفورية، المخزون، والإشعارات",
+  "start_url": "/admin",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#071629",
-  "theme_color": "#071629",
+  "background_color": "#030712",
+  "theme_color": "#0f172a",
   "orientation": "portrait",
   "dir": "rtl",
   "lang": "ar",
@@ -24,5 +24,28 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["shopping", "electronics", "lifestyle"]
+  "shortcuts": [
+    {
+      "name": "إدارة الطلبات",
+      "short_name": "الطلبات",
+      "description": "متابعة وإدارة طلبات الشراء الواردة",
+      "url": "/admin",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "المخزون والمنتجات",
+      "short_name": "المخزون",
+      "description": "متابعة كميات وتوفر المنتجات",
+      "url": "/admin",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "متجر العملاء",
+      "short_name": "المتجر",
+      "description": "معاينة واجهة متجر سوق هبة للعملاء",
+      "url": "/",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["business", "productivity", "management"]
 }

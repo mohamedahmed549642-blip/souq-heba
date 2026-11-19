@@ -2,9 +2,10 @@
  * Souq Heba Service Worker - Progressive Web App (PWA) & Push Notifications
  */
 
-const CACHE_NAME = 'souq-heba-v1';
+const CACHE_NAME = 'souq-heba-admin-v2';
 const STATIC_ASSETS = [
   '/',
+  '/admin',
   '/index.html',
   '/manifest.json',
   '/logo.png'

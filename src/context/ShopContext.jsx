@@ -62,6 +62,19 @@ export function ShopProvider({ children }) {
 
   const isAdminRoute = currentPath.startsWith('/admin');
 
+  // Sync PWA page title and apple-mobile-web-app-title dynamically
+  useEffect(() => {
+    if (isAdminRoute) {
+      document.title = 'إدارة سوق هبة | لوحة التحكم';
+      const appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (appleTitle) appleTitle.setAttribute('content', 'إدارة هبة');
+    } else {
+      document.title = 'سوق هبة | Souq Heba - متجر الإلكترونيات والأجهزة الذكية';
+      const appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (appleTitle) appleTitle.setAttribute('content', 'سوق هبة');
+    }
+  }, [isAdminRoute]);
+
   // Modals & Panels
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
