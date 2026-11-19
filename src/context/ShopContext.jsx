@@ -155,8 +155,8 @@ export function ShopProvider({ children }) {
       const fetchedOrders = data.orders || [];
       setOrders(fetchedOrders);
 
-      // Real-time detection of new incoming orders
-      if (initialLoadDoneRef.current && isPolling) {
+      // Real-time detection of new incoming orders (STRICTLY for authenticated Admin only)
+      if (isAdminRoute && isAdminAuthenticated && initialLoadDoneRef.current && isPolling) {
         const newlyArrived = fetchedOrders.filter(o => !knownOrderIdsRef.current.has(o.id));
         if (newlyArrived.length > 0) {
           const newest = newlyArrived[0];
@@ -302,17 +302,24 @@ export function ShopProvider({ children }) {
   };
 
   useEffect(() => {
-    refreshAll();
-    fetchAdminSettings();
+    // Always fetch products for all visitors
+    fetchProducts();
 
-    // Real-time polling every 4 seconds to listen for incoming orders from anywhere
-    const pollInterval = setInterval(() => {
-      fetchOrders(true);
+    // STRICT PRIVACY & ISOLATION: Only poll orders & stats if on Admin Route and Authenticated
+    if (isAdminRoute && isAdminAuthenticated) {
+      fetchOrders();
       fetchStats();
-    }, 4000);
+      fetchInventoryLogs();
+      fetchAdminSettings();
 
-    return () => clearInterval(pollInterval);
-  }, []);
+      const pollInterval = setInterval(() => {
+        fetchOrders(true);
+        fetchStats();
+      }, 4000);
+
+      return () => clearInterval(pollInterval);
+    }
+  }, [isAdminRoute, isAdminAuthenticated]);
 
   // --- CART OPERATIONS ---
   const addToCart = (product, quantity = 1) => {
@@ -390,7 +397,11 @@ export function ShopProvider({ children }) {
       }
 
       clearCart();
-      await refreshAll();
+      if (isAdminRoute && isAdminAuthenticated) {
+        await refreshAll();
+      } else {
+        await fetchProducts();
+      }
       return data.order;
     } catch (err) {
       throw err;

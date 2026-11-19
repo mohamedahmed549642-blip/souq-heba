@@ -38,11 +38,10 @@ function ShopContent() {
       {/* Floating Instant WhatsApp Concierge */}
       <FloatingWhatsApp />
 
-      {/* Global Customer Modals & Realtime Alerts */}
+      {/* Global Customer Modals */}
       <ProductModal />
       <CartDrawer />
       <CheckoutModal />
-      <RealtimeOrderToast />
     </div>
   );
 }
